@@ -20,11 +20,18 @@ jobs:
             set -ex
             echo "Starting deployment..."
 
-            # Debug: Show current user and directory
-            echo "Running as user: $(whoami)"
-            echo "In directory: $(pwd)"
+            # Install GitHub CLI if not present
+            if ! command -v gh &> /dev/null; then
+              echo "Installing GitHub CLI..."
+              type -p curl >/dev/null || (sudo apt update && sudo apt install curl -y)
+              curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg \
+              && sudo chmod go+r /usr/share/keyrings/githubcli-archive-keyring.gpg \
+              && echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null \
+              && sudo apt update \
+              && sudo apt install gh -y
+            fi
 
-            # Clean up and prepare directory with proper permissions
+            # Clean up and prepare directory
             echo "Setting up deployment directory..."
             sudo rm -rf /opt/snel-telegram
             sudo mkdir -p /opt/snel-telegram
@@ -32,9 +39,9 @@ jobs:
             sudo chmod -R 755 /opt/snel-telegram
             cd /opt/snel-telegram
 
-            # Clone the repository using HTTPS
+            # Clone the repository using GitHub CLI
             echo "Cloning repository..."
-            sudo -u root git clone https://github.com/sneldao/stable-snel-tg.git .
+            sudo -u root gh repo clone sneldao/stable-snel-tg .
 
             # Verify clone success
             echo "Verifying cloned files..."
