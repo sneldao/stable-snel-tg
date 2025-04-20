@@ -30,25 +30,25 @@ jobs:
             sudo chown -R $(whoami):$(whoami) /opt/snel-telegram
             cd /opt/snel-telegram
 
-            # Set up SSH config for GitHub
+            # Set up SSH for GitHub
             echo "Setting up SSH config..."
-            mkdir -p ~/.ssh
-            echo "${{ secrets.GIT_SSH_KEY }}" > ~/.ssh/github_deploy_key
-            chmod 600 ~/.ssh/github_deploy_key
-            echo -e "Host github.com\n  IdentityFile ~/.ssh/github_deploy_key\n  StrictHostKeyChecking no" > ~/.ssh/config
+            sudo mkdir -p /root/.ssh
+            echo "${{ secrets.GIT_SSH_KEY }}" | sudo tee /root/.ssh/github_deploy_key > /dev/null
+            sudo chmod 600 /root/.ssh/github_deploy_key
 
-            # Debug: Show SSH config
-            echo "SSH config:"
-            cat ~/.ssh/config
-            ls -la ~/.ssh/
+            # Add GitHub's host key
+            echo "github.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOMqqnkVzrm0SdG6UOoqKLsabgH5C9okWi0dh2l9GKJl" | sudo tee -a /root/.ssh/known_hosts > /dev/null
+
+            # Configure Git to use the deploy key
+            export GIT_SSH_COMMAND="ssh -i /root/.ssh/github_deploy_key -o IdentitiesOnly=yes"
 
             # Test Git connection
             echo "Testing Git connection..."
-            ssh -T git@github.com || true
+            ssh -i /root/.ssh/github_deploy_key -o IdentitiesOnly=yes git@github.com || true
 
-            # Clone the repository with verbose output
+            # Clone the repository
             echo "Cloning repository..."
-            GIT_SSH_COMMAND="ssh -v" git clone git@github.com:sneldao/stable-snel-tg.git .
+            git clone git@github.com:sneldao/stable-snel-tg.git .
 
             # Debug: Show cloned files
             echo "Cloned files:"
