@@ -30,25 +30,9 @@ jobs:
             sudo chown -R $(whoami):$(whoami) /opt/snel-telegram
             cd /opt/snel-telegram
 
-            # Set up SSH for GitHub
-            echo "Setting up SSH config..."
-            sudo mkdir -p /root/.ssh
-            echo "${{ secrets.GIT_SSH_KEY }}" | sudo tee /root/.ssh/github_deploy_key > /dev/null
-            sudo chmod 600 /root/.ssh/github_deploy_key
-
-            # Add GitHub's host key
-            echo "github.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOMqqnkVzrm0SdG6UOoqKLsabgH5C9okWi0dh2l9GKJl" | sudo tee -a /root/.ssh/known_hosts > /dev/null
-
-            # Configure Git to use the deploy key
-            export GIT_SSH_COMMAND="ssh -i /root/.ssh/github_deploy_key -o IdentitiesOnly=yes"
-
-            # Test Git connection
-            echo "Testing Git connection..."
-            ssh -i /root/.ssh/github_deploy_key -o IdentitiesOnly=yes git@github.com || true
-
-            # Clone the repository
+            # Clone the repository using HTTPS
             echo "Cloning repository..."
-            git clone git@github.com:sneldao/stable-snel-tg.git .
+            git clone https://github.com/sneldao/stable-snel-tg.git .
 
             # Debug: Show cloned files
             echo "Cloned files:"
