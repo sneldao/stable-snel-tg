@@ -8,75 +8,85 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-      - name: Deploy to Hetzner
+      - name: Deploy to server
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.HETZNER_HOST }}
           username: ${{ secrets.HETZNER_USERNAME }}
           key: ${{ secrets.HETZNER_SSH_KEY }}
           script: |
-            set -ex
-            echo "Starting deployment..."
-
-            # Install GitHub CLI if not present
-            if ! command -v gh &> /dev/null; then
-              echo "Installing GitHub CLI..."
-              type -p curl >/dev/null || (sudo apt update && sudo apt install curl -y)
-              curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg \
-              && sudo chmod go+r /usr/share/keyrings/githubcli-archive-keyring.gpg \
-              && echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null \
-              && sudo apt update \
-              && sudo apt install gh -y
-            fi
-
-            # Clean up and prepare directory
-            echo "Setting up deployment directory..."
-            sudo rm -rf /opt/snel-telegram
-            sudo mkdir -p /opt/snel-telegram
-            sudo chown -R root:root /opt/snel-telegram
-            sudo chmod -R 755 /opt/snel-telegram
+            # Prepare directory
+            mkdir -p /opt/snel-telegram
             cd /opt/snel-telegram
 
-            # Clone the repository using GitHub CLI
-            echo "Cloning repository..."
-            sudo -u root gh repo clone sneldao/stable-snel-tg .
+            # Copy new files
+            rm -f bot.py docker-compose.yml Dockerfile requirements.txt
 
-            # Verify clone success
-            echo "Verifying cloned files..."
-            ls -la
-            if [ ! -f "bot.py" ]; then
-              echo "Repository clone failed - bot.py not found"
-              exit 1
-            fi
+            # Create new files
+            cat > bot.py << 'EOL'
+            import os
+            import logging
+            from telegram import Update
+            from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
 
-            # Create .env file
-            echo "Setting up environment..."
+            # Enable logging
+            logging.basicConfig(
+                format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
+            )
+            logger = logging.getLogger(__name__)
+
+            async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+                await update.message.reply_text("Hi! I'm an echo bot. Send me a message!")
+
+            async def echo(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+                await update.message.reply_text(update.message.text)
+
+            def main() -> None:
+                application = Application.builder().token(os.getenv("BOT_TOKEN")).build()
+                application.add_handler(CommandHandler("start", start))
+                application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, echo))
+                application.run_polling()
+
+            if __name__ == "__main__":
+                main()
+            EOL
+
+            cat > docker-compose.yml << 'EOL'
+            version: '3'
+            services:
+              bot:
+                build: .
+                environment:
+                  - BOT_TOKEN=${BOT_TOKEN}
+                container_name: snel-telegram-bot
+                restart: always
+            EOL
+
+            cat > Dockerfile << 'EOL'
+            FROM python:3.9-slim
+            WORKDIR /app
+            COPY requirements.txt .
+            RUN pip install -r requirements.txt
+            COPY bot.py .
+            CMD ["python", "bot.py"]
+            EOL
+
+            cat > requirements.txt << 'EOL'
+            python-telegram-bot==20.8
+            EOL
+
+            # Set up environment
             echo "BOT_TOKEN=${{ secrets.BOT_TOKEN }}" > .env
-            sudo chown -R root:root .env
-            sudo chmod 600 .env
 
-            echo "Setting up Docker..."
-            # Ensure Docker is running
-            sudo systemctl start docker || true
+            # Run Docker
+            docker compose down || true
+            docker compose up -d --build
 
-            echo "Stopping existing containers..."
-            sudo docker-compose down || true
-
-            echo "Building container..."
-            sudo docker-compose build --no-cache
-
-            echo "Starting container..."
-            sudo docker-compose up -d
-
-            echo "Waiting for container to start..."
-            sleep 10
-
-            echo "Checking container status..."
-            sudo docker ps | grep snel-telegram-bot || echo "Container not found!"
-
-            echo "Checking container logs..."
-            sudo docker logs snel-telegram-bot 2>&1 || echo "No logs available"
-
-            echo "Deployment completed"
+            # Verify
+            echo "Container status:"
+            docker ps | grep snel-telegram-bot || echo "Container not running!"
+            echo "Container logs:"
+            docker logs snel-telegram-bot
