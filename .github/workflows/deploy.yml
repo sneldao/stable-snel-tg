@@ -17,45 +17,59 @@ jobs:
           username: ${{ secrets.HETZNER_USERNAME }}
           key: ${{ secrets.HETZNER_SSH_KEY }}
           script: |
-            set -e
+            set -ex
             echo "Starting deployment..."
 
             # Debug: Show current user and directory
             echo "Running as user: $(whoami)"
             echo "In directory: $(pwd)"
 
-            # Ensure directory exists and is clean
-            sudo rm -rf /opt/snel-telegram/*
+            # Clean up and prepare directory with proper permissions
+            echo "Setting up deployment directory..."
+            sudo rm -rf /opt/snel-telegram
             sudo mkdir -p /opt/snel-telegram
-            sudo chown -R $(whoami):$(whoami) /opt/snel-telegram
+            sudo chown -R root:root /opt/snel-telegram
+            sudo chmod -R 755 /opt/snel-telegram
             cd /opt/snel-telegram
 
             # Clone the repository using HTTPS
             echo "Cloning repository..."
-            git clone https://github.com/sneldao/stable-snel-tg.git .
+            sudo -u root git clone https://github.com/sneldao/stable-snel-tg.git .
 
-            # Debug: Show cloned files
-            echo "Cloned files:"
+            # Verify clone success
+            echo "Verifying cloned files..."
             ls -la
+            if [ ! -f "bot.py" ]; then
+              echo "Repository clone failed - bot.py not found"
+              exit 1
+            fi
 
             # Create .env file
             echo "Setting up environment..."
             echo "BOT_TOKEN=${{ secrets.BOT_TOKEN }}" > .env
+            sudo chown -R root:root .env
+            sudo chmod 600 .env
+
+            echo "Setting up Docker..."
+            # Ensure Docker is running
+            sudo systemctl start docker || true
 
             echo "Stopping existing containers..."
-            docker-compose down || true
+            sudo docker-compose down || true
 
             echo "Building container..."
-            docker-compose build --no-cache
+            sudo docker-compose build --no-cache
 
             echo "Starting container..."
-            docker-compose up -d
+            sudo docker-compose up -d
 
             echo "Waiting for container to start..."
             sleep 10
 
             echo "Checking container status..."
-            docker ps | grep snel-telegram-bot || echo "Container not found!"
+            sudo docker ps | grep snel-telegram-bot || echo "Container not found!"
 
             echo "Checking container logs..."
-            docker logs snel-telegram-bot 2>&1 || echo "No logs available"
+            sudo docker logs snel-telegram-bot 2>&1 || echo "No logs available"
+
+            echo "Deployment completed"
