@@ -10,3 +10,19 @@ services:
     volumes:
       - ./:/app
     working_dir: /app
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import telegram; print('Bot API is accessible')",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
