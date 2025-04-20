@@ -20,9 +20,14 @@ jobs:
             set -e
             echo "Starting deployment..."
 
+            # Debug: Show current user and directory
+            echo "Running as user: $(whoami)"
+            echo "In directory: $(pwd)"
+
             # Ensure directory exists and is clean
-            rm -rf /opt/snel-telegram/*
-            mkdir -p /opt/snel-telegram
+            sudo rm -rf /opt/snel-telegram/*
+            sudo mkdir -p /opt/snel-telegram
+            sudo chown -R $(whoami):$(whoami) /opt/snel-telegram
             cd /opt/snel-telegram
 
             # Set up SSH config for GitHub
@@ -32,9 +37,22 @@ jobs:
             chmod 600 ~/.ssh/github_deploy_key
             echo -e "Host github.com\n  IdentityFile ~/.ssh/github_deploy_key\n  StrictHostKeyChecking no" > ~/.ssh/config
 
-            # Clone the repository
+            # Debug: Show SSH config
+            echo "SSH config:"
+            cat ~/.ssh/config
+            ls -la ~/.ssh/
+
+            # Test Git connection
+            echo "Testing Git connection..."
+            ssh -T git@github.com || true
+
+            # Clone the repository with verbose output
             echo "Cloning repository..."
-            git clone git@github.com:sneldao/stable-snel-tg.git .
+            GIT_SSH_COMMAND="ssh -v" git clone git@github.com:sneldao/stable-snel-tg.git .
+
+            # Debug: Show cloned files
+            echo "Cloned files:"
+            ls -la
 
             # Create .env file
             echo "Setting up environment..."
