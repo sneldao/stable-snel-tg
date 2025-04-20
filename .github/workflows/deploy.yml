@@ -21,17 +21,20 @@ jobs:
             echo "Starting deployment..."
 
             # Ensure directory exists and is clean
-            rm -rf /opt/snel-telegram
+            rm -rf /opt/snel-telegram/*
             mkdir -p /opt/snel-telegram
             cd /opt/snel-telegram
 
-            # Clone the repository
-            echo "Cloning repository..."
-            git clone https://github.com/sneldao/stable-snel-tg.git .
+            # Copy repository files
+            echo "Copying repository files..."
+            cp -r /home/snel-bot/stable-snel-tg/* .
 
             # Create .env file
             echo "Setting up environment..."
             echo "BOT_TOKEN=${{ secrets.BOT_TOKEN }}" > .env
+
+            echo "Stopping existing containers..."
+            docker-compose down || true
 
             echo "Building container..."
             docker-compose build --no-cache
