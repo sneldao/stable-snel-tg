@@ -2,7 +2,7 @@ name: Deploy to Hetzner
 
 on:
   push:
-    branches: [main]
+    branches: [master]
 
 jobs:
   deploy:
@@ -21,7 +21,7 @@ jobs:
             echo "Starting deployment..."
             cd /opt/snel-telegram
             echo "Pulling latest changes..."
-            git pull origin main
+            git pull origin master
             echo "Stopping existing containers..."
             docker-compose down || true
             echo "Building new container..."
