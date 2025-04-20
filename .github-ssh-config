@@ -1,0 +1,13 @@
+# Personal GitHub account
+Host github.com
+    HostName github.com
+    User git
+    IdentityFile ~/.ssh/id_ed25519
+    IdentitiesOnly yes
+
+# Bot project GitHub account
+Host github.com-bot
+    HostName github.com
+    User git
+    IdentityFile ~/.ssh/id_ed25519_bot
+    IdentitiesOnly yes 
