@@ -25,9 +25,16 @@ jobs:
             mkdir -p /opt/snel-telegram
             cd /opt/snel-telegram
 
-            # Copy repository files
-            echo "Copying repository files..."
-            cp -r /home/snel-bot/stable-snel-tg/* .
+            # Set up SSH config for GitHub
+            echo "Setting up SSH config..."
+            mkdir -p ~/.ssh
+            echo "${{ secrets.GIT_SSH_KEY }}" > ~/.ssh/github_deploy_key
+            chmod 600 ~/.ssh/github_deploy_key
+            echo -e "Host github.com\n  IdentityFile ~/.ssh/github_deploy_key\n  StrictHostKeyChecking no" > ~/.ssh/config
+
+            # Clone the repository
+            echo "Cloning repository..."
+            git clone git@github.com:sneldao/stable-snel-tg.git .
 
             # Create .env file
             echo "Setting up environment..."
@@ -46,7 +53,7 @@ jobs:
             sleep 10
 
             echo "Checking container status..."
-            docker ps | grep snel-telegram-bot
+            docker ps | grep snel-telegram-bot || echo "Container not found!"
 
             echo "Checking container logs..."
-            docker logs snel-telegram-bot
+            docker logs snel-telegram-bot 2>&1 || echo "No logs available"
