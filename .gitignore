@@ -1,6 +1,7 @@
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
+*$py.class
 
 # C extensions
 *.so
@@ -19,15 +20,33 @@ lib64/
 parts/
 sdist/
 var/
+wheels/
 *.egg-info/
 .installed.cfg
 *.egg
+
+# Virtual Environment
+venv/
+ENV/
+
+# Environment files
 .env
-.pybuild
-debian/tmp
-debian/python3-telegram
-debian/python3-telegram-doc
-debian/.debhelper
+.env.*
+!.env.example
+
+# Setup scripts
+setup-env.sh
+setup-server-env.sh
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
 
 # PyInstaller
 #  Usually these files are written by a python script from a template
@@ -66,14 +85,10 @@ docs/_build/
 
 # PyBuilder
 target/
-.idea/
 .run/
 
 # Sublime Text 2
 *.sublime*
-
-# VS Code
-.vscode
 
 # unitests files
 game.gif
@@ -90,9 +105,6 @@ telegram.jpg
 
 # Exclude .exrc file for Vim
 .exrc
-
-# virtual env
-venv*
 
 # environment manager:
 .mise.toml
