@@ -21,39 +21,7 @@ jobs:
           mkdir -p ~/.ssh
           ssh-keyscan -t rsa,ecdsa,ed25519 ${{ secrets.HETZNER_HOST }} >> ~/.ssh/known_hosts
 
-      - name: Setup deployment directory
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.HETZNER_HOST }}
-          username: ${{ secrets.HETZNER_USERNAME }}
-          key: ${{ secrets.HETZNER_SSH_KEY }}
-          script: |
-            # Create the deployment directory with correct permissions
-            sudo mkdir -p /opt/snel-telegram
-            # Change ownership to current user for deployment
-            sudo chown -R $USER:$USER /opt/snel-telegram
-            cd /opt/snel-telegram
-            # Backup existing deployment if it exists
-            if [ -f docker-compose.yml ]; then
-              timestamp=$(date +%Y%m%d_%H%M%S)
-              mkdir -p backups/$timestamp
-              cp -r * backups/$timestamp/ 2>/dev/null || true
-            fi
-            # Fix potential permission issues with Docker
-            sudo chmod -R 755 /opt/snel-telegram
-
-      - name: Copy deployment files
-        uses: appleboy/scp-action@master
-        with:
-          host: ${{ secrets.HETZNER_HOST }}
-          username: ${{ secrets.HETZNER_USERNAME }}
-          key: ${{ secrets.HETZNER_SSH_KEY }}
-          source: "bot.py,docker-compose.yml,Dockerfile,requirements.txt"
-          target: "/opt/snel-telegram"
-          strip_components: 0
-          overwrite: true
-
-      - name: Deploy and verify
+      - name: Deploy to server
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.HETZNER_HOST }}
@@ -61,53 +29,129 @@ jobs:
           key: ${{ secrets.HETZNER_SSH_KEY }}
           script: |
             set -e
+            echo "Setting up deployment directory..."
+            
+            # Create/recreate deployment directory with correct permissions
+            sudo mkdir -p /opt/snel-telegram
+            sudo chown -R $USER:$USER /opt/snel-telegram
+            sudo chmod -R 755 /opt/snel-telegram
+            
+            # Clean any existing files
             cd /opt/snel-telegram
+            rm -rf *.py *.yml *.txt Dockerfile .env
+            
+            # Create deployment files
+            echo "Creating deployment files..."
+            
+            # Create Dockerfile
+            cat > Dockerfile << 'DOCKERFILE_EOF'
+FROM python:3.12-slim
 
-            # Create .env file
+WORKDIR /app
+
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY . .
+
+CMD ["python", "bot.py"]
+DOCKERFILE_EOF
+            
+            # Create docker-compose.yml
+            cat > docker-compose.yml << 'COMPOSE_EOF'
+version: "3.8"
+
+services:
+  bot:
+    build: .
+    container_name: snel-telegram-bot
+    restart: unless-stopped
+    env_file:
+      - .env
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+COMPOSE_EOF
+            
+            # Create requirements.txt
+            cat > requirements.txt << 'REQUIREMENTS_EOF'
+python-telegram-bot==20.8
+python-dotenv==1.0.1
+httpx>=0.27.0
+cryptography>=39.0.1
+cachetools>=5.3.3
+APScheduler>=3.10.4
+REQUIREMENTS_EOF
+            
+            # Create bot.py
+            cat > bot.py << 'BOT_EOF'
+import asyncio
+import os
+from dotenv import load_dotenv
+from telegram import Update
+from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
+
+# Load environment variables
+load_dotenv()
+
+# Get the token from environment variable
+TOKEN = os.getenv('BOT_TOKEN')
+
+if not TOKEN:
+    raise ValueError("No token provided. Please set BOT_TOKEN in your .env file")
+
+async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text('👋 Hello! I am your echo bot (Version 2023-04-20). Send me any message and I will echo it back to you!')
+
+async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text('I am a simple echo bot. Just send me any message and I will repeat it back to you!')
+
+async def echo(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text(update.message.text)
+
+def main():
+    # Create the Application
+    application = Application.builder().token(TOKEN).build()
+
+    # Add handlers
+    application.add_handler(CommandHandler("start", start_command))
+    application.add_handler(CommandHandler("help", help_command))
+    application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, echo))
+
+    # Start the bot
+    print("Bot is starting... (Version 2023-04-20)")
+    application.run_polling()
+
+if __name__ == '__main__':
+    main()
+BOT_EOF
+            
+            # Create .env file with bot token
             echo "BOT_TOKEN=${{ secrets.BOT_TOKEN }}" > .env
-
-            # Fix permissions for Docker
-            if getent group docker > /dev/null; then
-              # If docker group exists, add current user to it if needed
-              sudo usermod -aG docker $USER 2>/dev/null || true
-              # Set group permissions for Docker
-              sudo chown -R $USER:docker .
-            else
-              # Otherwise, just ensure current user has full access
-              sudo chown -R $USER:$USER .
-            fi
-            sudo chmod -R 755 .
-
-            # Verify user can run Docker
-            echo "Docker permissions:"
-            id
-            groups
-
-            # Stop existing container (force kill if stuck)
-            echo "Stopping any existing containers..."
+            
+            # Set proper permissions
+            chmod -R 755 .
+            
+            # Stop any existing container
+            echo "Stopping existing containers..."
             sudo docker compose down -v --remove-orphans || true
             sudo docker rm -f snel-telegram-bot 2>/dev/null || true
-
-            # Clean up unused Docker resources to prevent disk space issues
-            echo "Cleaning up Docker resources..."
-            sudo docker system prune -f
-
-            # Build and start new container with debug output
-            echo "Building and starting new container..."
+            
+            # Build and deploy
+            echo "Building and deploying new container..."
             sudo docker compose build --no-cache
             sudo docker compose up -d
-
-            # Wait for container to initialize
-            echo "Waiting for container to start..."
+            
+            # Check deployment
+            echo "Checking deployment status..."
             sleep 10
-
-            # Verify container is running
             if sudo docker ps | grep -q snel-telegram-bot; then
-              echo "Container successfully started!"
-              sudo docker compose logs --tail=50
+              echo "Deployment successful!"
+              sudo docker compose logs --tail=20
             else
-              echo "Container failed to start. Debug information:"
+              echo "Deployment failed. Container logs:"
               sudo docker compose logs
-              sudo docker ps -a
               exit 1
             fi
