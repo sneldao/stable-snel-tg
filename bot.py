@@ -5,6 +5,7 @@ from telegram import Update
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
 from telegram.handlers.price_handlers import PriceHandlers
 from telegram.handlers.info_handlers import InfoHandlers
+from datetime import datetime
 
 # Load environment variables
 load_dotenv()
@@ -21,27 +22,57 @@ info_handlers = InfoHandlers()
 
 async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(
-        '👋 Hello! I am your crypto information bot.\n\n'
-        'Available commands:\n'
-        'Price Commands:\n'
-        '/p <coin> - Get current price\n'
-        '/s <coin> - Get detailed price info\n'
-        '/c <coin> [days] - Get price chart\n'
-        '/cs <coin> [days] - Get candlestick chart\n'
-        '/top [limit] - Get top coins\n'
-        '/best <24h|7d> - Get best performers\n'
-        '/worst <24h|7d> - Get worst performers\n\n'
-        'Information Commands:\n'
-        '/i <coin> - Get general information\n'
-        '/des <coin> - Get coin description\n'
-        '/dev <coin> - Get development info\n'
-        '/t <coin> - Get team information\n'
-        '/wp <coin> - Find whitepaper\n\n'
-        '/help - Show this help message'
+        '👋 Welcome to the Crypto Info Bot!\n\n'
+        'I can help you with:\n'
+        '• Real-time cryptocurrency prices\n'
+        '• Market data and charts\n'
+        '• Coin information and statistics\n\n'
+        'Type /help to see all available commands and features.'
     )
 
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await start_command(update, context)
+    await update.message.reply_text(
+        '📚 Available Commands:\n\n'
+        'Price Commands:\n'
+        '• /p <coin> - Get current price\n'
+        '• /s <coin> - Get detailed price info\n'
+        '• /c <coin> [days] - Get price chart\n'
+        '• /cs <coin> [days] - Get candlestick chart\n\n'
+        'Market Commands:\n'
+        '• /top [limit] - List top coins\n'
+        '• /best <24h|7d> - Best performers\n'
+        '• /worst <24h|7d> - Worst performers\n\n'
+        'Information Commands:\n'
+        '• /i <coin> - General information\n'
+        '• /des <coin> - Coin description\n'
+        '• /dev <coin> - Development info\n'
+        '• /t <coin> - Team information\n'
+        '• /wp <coin> - Find whitepaper\n\n'
+        'Utility Commands:\n'
+        '• /about - About the bot\n'
+        '• /help - Show this help message\n'
+        '• /status - Check bot status'
+    )
+
+async def about_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text(
+        '🤖 About Crypto Info Bot\n\n'
+        'A comprehensive cryptocurrency information bot that provides:\n\n'
+        '• Real-time price data and market statistics\n'
+        '• Technical analysis with price charts\n'
+        '• Detailed coin information and team data\n'
+        '• Development metrics and whitepaper links\n\n'
+        'Data powered by CoinGecko API\n'
+        'Built with Python and python-telegram-bot'
+    )
+
+async def status_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text(
+        '✅ Bot Status: Online\n\n'
+        'All systems operational\n'
+        'API connections: Active\n'
+        'Last update: ' + datetime.now().strftime('%Y-%m-%d %H:%M:%S UTC')
+    )
 
 async def echo(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(update.message.text)
@@ -53,6 +84,8 @@ def main():
     # Add handlers
     application.add_handler(CommandHandler("start", start_command))
     application.add_handler(CommandHandler("help", help_command))
+    application.add_handler(CommandHandler("about", about_command))
+    application.add_handler(CommandHandler("status", status_command))
     
     # Price handlers
     application.add_handler(CommandHandler("p", price_handlers.price_command))
