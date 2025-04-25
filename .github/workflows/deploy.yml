@@ -11,49 +11,71 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Test directory access
+      - name: Setup deployment directory
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.HETZNER_HOST }}
           username: ${{ secrets.HETZNER_USERNAME }}
           key: ${{ secrets.HETZNER_SSH_KEY }}
           script: |
-            echo "Testing access to /opt/telegram-bot"
-            ls -la /opt/telegram-bot
-            echo "Directory exists and is accessible"
+            mkdir -p /opt/snel-telegram
+            cd /opt/snel-telegram
+            # Backup existing deployment if it exists
+            if [ -f docker-compose.yml ]; then
+              timestamp=$(date +%Y%m%d_%H%M%S)
+              mkdir -p backups/$timestamp
+              cp -r * backups/$timestamp/ 2>/dev/null || true
+            fi
 
-      - name: Copy files
+      - name: Copy deployment files
         uses: appleboy/scp-action@master
         with:
           host: ${{ secrets.HETZNER_HOST }}
           username: ${{ secrets.HETZNER_USERNAME }}
           key: ${{ secrets.HETZNER_SSH_KEY }}
-          source: "bot.py,docker-compose.yml,Dockerfile,requirements.txt"
-          target: "/opt/telegram-bot"
+          source: "bot.py,docker-compose.yml,Dockerfile,requirements.txt,.env.example"
+          target: "/opt/snel-telegram"
           strip_components: 0
 
-      - name: Deploy bot
+      - name: Deploy and verify
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.HETZNER_HOST }}
           username: ${{ secrets.HETZNER_USERNAME }}
           key: ${{ secrets.HETZNER_SSH_KEY }}
           script: |
-            cd /opt/telegram-bot
+            cd /opt/snel-telegram
 
             # Create .env file
             echo "BOT_TOKEN=${{ secrets.BOT_TOKEN }}" > .env
+
+            # Store the ID of the currently running container (if any)
+            OLD_CONTAINER_ID=$(docker ps -q -f name=snel-telegram-bot)
 
             # Stop existing container
             docker compose down || true
 
             # Build and start new container
-            docker compose up -d --build
+            if ! docker compose up -d --build; then
+              echo "Failed to start new container, rolling back..."
+              if [ ! -z "$OLD_CONTAINER_ID" ]; then
+                # Restore old container
+                docker start $OLD_CONTAINER_ID
+              fi
+              exit 1
+            fi
 
-            # Show status
-            echo "CONTAINER STATUS:"
-            docker ps | grep telegram-bot || echo "Container not running!"
-
-            echo "LOGS:"
+            # Wait for container to be healthy
+            echo "Waiting for container to start..."
             sleep 5
-            docker logs snel-telegram-bot 2>&1 || echo "No logs available"
+
+            # Check if container is running
+            if ! docker ps | grep -q snel-telegram-bot; then
+              echo "Container failed to start, checking logs..."
+              docker logs snel-telegram-bot
+              exit 1
+            fi
+
+            # Show logs
+            echo "Deployment successful! Container logs:"
+            docker logs snel-telegram-bot
