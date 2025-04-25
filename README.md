@@ -30,7 +30,27 @@ A simple Telegram echo bot that demonstrates deployment to a server using Docker
 
 ## Deployment
 
-The bot is deployed using Docker Compose. The deployment process is automated through GitHub Actions.
+The bot is deployed using a two-step process:
+
+1. Push changes to GitHub:
+
+   ```bash
+   git add .
+   git commit -m "your message"
+   git push
+   ```
+
+2. Deploy on the server:
+   ```bash
+   ssh snel-bot "/opt/snel-telegram/pull-and-deploy.sh"
+   ```
+
+The deployment script will:
+
+- Pull the latest changes from GitHub
+- Stop any running containers
+- Rebuild and start the containers
+- Show deployment status
 
 ## Security
 
