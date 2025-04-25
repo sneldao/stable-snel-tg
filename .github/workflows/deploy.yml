@@ -28,7 +28,10 @@ jobs:
           username: ${{ secrets.HETZNER_USERNAME }}
           key: ${{ secrets.HETZNER_SSH_KEY }}
           script: |
-            mkdir -p /opt/snel-telegram
+            # Create the deployment directory with correct permissions
+            sudo mkdir -p /opt/snel-telegram
+            # Change ownership to current user for deployment
+            sudo chown -R $USER:$USER /opt/snel-telegram
             cd /opt/snel-telegram
             # Backup existing deployment if it exists
             if [ -f docker-compose.yml ]; then
@@ -36,8 +39,8 @@ jobs:
               mkdir -p backups/$timestamp
               cp -r * backups/$timestamp/ 2>/dev/null || true
             fi
-            # Ensure correct permissions
-            sudo chown -R $USER:$USER /opt/snel-telegram
+            # Fix potential permission issues with Docker
+            sudo chmod -R 755 /opt/snel-telegram
 
       - name: Copy deployment files
         uses: appleboy/scp-action@master
@@ -63,39 +66,48 @@ jobs:
             # Create .env file
             echo "BOT_TOKEN=${{ secrets.BOT_TOKEN }}" > .env
 
-            # Store the ID of the currently running container (if any)
-            OLD_CONTAINER_ID=$(docker ps -q -f name=snel-telegram-bot)
-
-            # Stop existing container
-            docker compose down || true
-
-            # Ensure docker can access the files
-            sudo chown -R $USER:$USER .
-
-            # Build and start new container
-            if ! docker compose up -d --build; then
-              echo "Failed to start new container, rolling back..."
-              if [ ! -z "$OLD_CONTAINER_ID" ]; then
-                # Restore old container
-                docker start $OLD_CONTAINER_ID
-              fi
-              # Show docker logs for debugging
-              echo "Build logs:"
-              docker compose logs --tail=100
-              exit 1
+            # Fix permissions for Docker
+            if getent group docker > /dev/null; then
+              # If docker group exists, add current user to it if needed
+              sudo usermod -aG docker $USER 2>/dev/null || true
+              # Set group permissions for Docker
+              sudo chown -R $USER:docker .
+            else
+              # Otherwise, just ensure current user has full access
+              sudo chown -R $USER:$USER .
             fi
+            sudo chmod -R 755 .
 
-            # Wait for container to be healthy
+            # Verify user can run Docker
+            echo "Docker permissions:"
+            id
+            groups
+
+            # Stop existing container (force kill if stuck)
+            echo "Stopping any existing containers..."
+            sudo docker compose down -v --remove-orphans || true
+            sudo docker rm -f snel-telegram-bot 2>/dev/null || true
+
+            # Clean up unused Docker resources to prevent disk space issues
+            echo "Cleaning up Docker resources..."
+            sudo docker system prune -f
+
+            # Build and start new container with debug output
+            echo "Building and starting new container..."
+            sudo docker compose build --no-cache
+            sudo docker compose up -d
+
+            # Wait for container to initialize
             echo "Waiting for container to start..."
-            sleep 5
+            sleep 10
 
-            # Check if container is running
-            if ! docker ps | grep -q snel-telegram-bot; then
-              echo "Container failed to start, checking logs..."
-              docker compose logs --tail=100
+            # Verify container is running
+            if sudo docker ps | grep -q snel-telegram-bot; then
+              echo "Container successfully started!"
+              sudo docker compose logs --tail=50
+            else
+              echo "Container failed to start. Debug information:"
+              sudo docker compose logs
+              sudo docker ps -a
               exit 1
             fi
-
-            # Show logs
-            echo "Deployment successful! Container logs:"
-            docker compose logs --tail=50
