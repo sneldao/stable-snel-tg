@@ -143,4 +143,98 @@ class CryptoService:
             return image_data
         except Exception as e:
             print(f"Error generating candlestick chart for {coin_id}: {e}")
-            return None 
+            return None
+            
+    async def get_price_change(self, coin_id: str, period: str = '7d') -> Dict:
+        """Get price change analysis over time."""
+        try:
+            data = self.cg.get_coin_by_id(id=coin_id)
+            market_data = data.get('market_data', {})
+            
+            periods = {
+                '24h': 'price_change_percentage_24h',
+                '7d': 'price_change_percentage_7d',
+                '30d': 'price_change_percentage_30d',
+                '1y': 'price_change_percentage_1y'
+            }
+            
+            if period not in periods:
+                period = '7d'
+                
+            change_key = periods[period]
+            current_price = market_data.get('current_price', {}).get('usd', 0)
+            price_change = market_data.get(change_key, 0)
+            
+            return {
+                'current_price': current_price,
+                'price_change': price_change,
+                'period': period,
+                'high_24h': market_data.get('high_24h', {}).get('usd', 0),
+                'low_24h': market_data.get('low_24h', {}).get('usd', 0),
+                'ath': market_data.get('ath', {}).get('usd', 0),
+                'ath_date': market_data.get('ath_date', {}).get('usd', ''),
+                'atl': market_data.get('atl', {}).get('usd', 0),
+                'atl_date': market_data.get('atl_date', {}).get('usd', '')
+            }
+        except Exception as e:
+            print(f"Error getting price change for {coin_id}: {e}")
+            return {}
+            
+    async def get_roi(self, coin_id: str) -> Dict:
+        """Calculate Return on Investment."""
+        try:
+            data = self.cg.get_coin_by_id(id=coin_id)
+            market_data = data.get('market_data', {})
+            
+            current_price = market_data.get('current_price', {}).get('usd', 0)
+            ath = market_data.get('ath', {}).get('usd', 0)
+            ath_date = market_data.get('ath_date', {}).get('usd', '')
+            atl = market_data.get('atl', {}).get('usd', 0)
+            atl_date = market_data.get('atl_date', {}).get('usd', '')
+            
+            # Calculate ROI from ATH
+            ath_roi = ((current_price - ath) / ath) * 100 if ath > 0 else 0
+            
+            # Calculate ROI from ATL
+            atl_roi = ((current_price - atl) / atl) * 100 if atl > 0 else 0
+            
+            return {
+                'current_price': current_price,
+                'ath': ath,
+                'ath_date': ath_date,
+                'ath_roi': ath_roi,
+                'atl': atl,
+                'atl_date': atl_date,
+                'atl_roi': atl_roi
+            }
+        except Exception as e:
+            print(f"Error calculating ROI for {coin_id}: {e}")
+            return {}
+            
+    async def get_ath_analysis(self, coin_id: str) -> Dict:
+        """Get All Time High analysis."""
+        try:
+            data = self.cg.get_coin_by_id(id=coin_id)
+            market_data = data.get('market_data', {})
+            
+            current_price = market_data.get('current_price', {}).get('usd', 0)
+            ath = market_data.get('ath', {}).get('usd', 0)
+            ath_date = market_data.get('ath_date', {}).get('usd', '')
+            
+            # Calculate percentage from ATH
+            ath_percentage = (current_price / ath) * 100 if ath > 0 else 0
+            
+            # Calculate days since ATH
+            ath_datetime = datetime.fromisoformat(ath_date.replace('Z', '+00:00'))
+            days_since_ath = (datetime.now(ath_datetime.tzinfo) - ath_datetime).days
+            
+            return {
+                'current_price': current_price,
+                'ath': ath,
+                'ath_date': ath_date,
+                'ath_percentage': ath_percentage,
+                'days_since_ath': days_since_ath
+            }
+        except Exception as e:
+            print(f"Error getting ATH analysis for {coin_id}: {e}")
+            return {} 

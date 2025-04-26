@@ -5,6 +5,8 @@ from telegram import Update
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
 from telegram.handlers.price_handlers import PriceHandlers
 from telegram.handlers.info_handlers import InfoHandlers
+from telegram.handlers.news_handlers import NewsHandlers
+from telegram.handlers.analysis_handlers import AnalysisHandlers
 from datetime import datetime
 
 # Load environment variables
@@ -19,6 +21,8 @@ if not TOKEN:
 # Initialize handlers
 price_handlers = PriceHandlers()
 info_handlers = InfoHandlers()
+news_handlers = NewsHandlers()
+analysis_handlers = AnalysisHandlers()
 
 async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(
@@ -26,7 +30,9 @@ async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         'I can help you with:\n'
         '• Real-time cryptocurrency prices\n'
         '• Market data and charts\n'
-        '• Coin information and statistics\n\n'
+        '• Coin information and statistics\n'
+        '• News and events\n'
+        '• Technical analysis\n\n'
         'Type /help to see all available commands and features.'
     )
 
@@ -48,6 +54,14 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         '• /dev <coin> - Development info\n'
         '• /t <coin> - Team information\n'
         '• /wp <coin> - Find whitepaper\n\n'
+        'News & Events:\n'
+        '• /n <coin> - Latest news\n'
+        '• /soc <coin> - Social media links\n'
+        '• /ev <coin> - Upcoming events\n\n'
+        'Technical Analysis:\n'
+        '• /ch <coin> [period] - Price change\n'
+        '• /roi <coin> - Return on Investment\n'
+        '• /ath <coin> - All Time High analysis\n\n'
         'Utility Commands:\n'
         '• /about - About the bot\n'
         '• /help - Show this help message\n'
@@ -61,6 +75,7 @@ async def about_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         '• Real-time price data and market statistics\n'
         '• Technical analysis with price charts\n'
         '• Detailed coin information and team data\n'
+        '• News, events, and social media links\n'
         '• Development metrics and whitepaper links\n\n'
         'Data powered by CoinGecko API\n'
         'Built with Python and python-telegram-bot'
@@ -102,6 +117,16 @@ def main():
     application.add_handler(CommandHandler("dev", info_handlers.development_command))
     application.add_handler(CommandHandler("t", info_handlers.team_command))
     application.add_handler(CommandHandler("wp", info_handlers.whitepaper_command))
+    
+    # News handlers
+    application.add_handler(CommandHandler("n", news_handlers.news_command))
+    application.add_handler(CommandHandler("soc", news_handlers.social_command))
+    application.add_handler(CommandHandler("ev", news_handlers.events_command))
+    
+    # Analysis handlers
+    application.add_handler(CommandHandler("ch", analysis_handlers.price_change_command))
+    application.add_handler(CommandHandler("roi", analysis_handlers.roi_command))
+    application.add_handler(CommandHandler("ath", analysis_handlers.ath_command))
     
     # Echo handler for any other text
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, echo))
