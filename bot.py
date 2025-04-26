@@ -26,14 +26,26 @@ analysis_handlers = AnalysisHandlers()
 
 async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(
-        '👋 Welcome to the Crypto Info Bot!\n\n'
-        'I can help you with:\n'
-        '• Real-time cryptocurrency prices\n'
-        '• Market data and charts\n'
-        '• Coin information and statistics\n'
-        '• News and events\n'
-        '• Technical analysis\n\n'
-        'Type /help to see all available commands and features.'
+        '🐌 *Welcome to SNEL!*\n\n'
+        'I\'m your slow and steady guide through the world of stablecoins and real-world assets. No rush, no FOMO, just reliable information and safe practices.\n\n'
+        '🔹 *What I Do*\n'
+        '• Track stablecoin prices and market data\n'
+        '• Monitor RWA (Real World Asset) performance\n'
+        '• Provide market stability indicators\n'
+        '• Share security best practices\n\n'
+        '🔹 *Getting Started*\n'
+        'Try these commands to get familiar:\n'
+        '• `/p usdc` - Check a stablecoin price\n'
+        '• `/s usdt` - Get detailed stablecoin info\n'
+        '• `/i dai` - Learn about a stablecoin\n'
+        '• `/n usdc` - Latest stablecoin news\n\n'
+        '🔹 *Need Help?*\n'
+        '• `/help` - See all available commands\n'
+        '• `/about` - Learn more about me\n'
+        '• `/status` - Check if I\'m running smoothly\n\n'
+        'Remember: Slow and steady may not necessarily win the race, but crashing and burning is a sure way to lose it! 🌱\n\n'
+        'Have questions? Reach out to @papa on Farcaster or @papajams on Lens.',
+        parse_mode='Markdown'
     )
 
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):

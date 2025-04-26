@@ -1,117 +1,55 @@
-# Snel Telegram Bot
+# 🐌 SNEL - Stablecoin & RWA Information Bot
 
-A comprehensive cryptocurrency information and analysis Telegram bot built with modern Python and Telegram API.
+A Telegram bot focused on stablecoins and real-world assets (RWAs), providing reliable market data and educational resources. Built with a philosophy of slow, steady growth and risk awareness.
 
-## Features
+## 🔹 Philosophy
 
-### Phase 1 - Core Features (Current Focus)
+SNEL is designed for those who prioritize stability over speculation. While the crypto world chases 100x gains, we focus on:
 
-#### Price and Market Data Commands
+- Reliable stablecoin information
+- Real-world asset (RWA) tracking
+- Market stability indicators
+- Security best practices
 
-- `/p <coin>` - Get current coin price
-- `/s <coin>` - Detailed price, market cap and volume information
-- `/c <coin> [days]` - Price chart with volume overlay
-- `/cs <coin> [days]` - Candlestick chart for technical analysis
-- `/top [limit]` - List top coins by market cap (default: 30)
-- `/best <24h|7d>` - Best performing coins
-- `/worst <24h|7d>` - Worst performing coins
+## 🔹 Features
 
-#### Basic Information Commands
+### Price & Market Data
 
-- `/i <coin>` - General coin information and statistics
-- `/des <coin>` - Detailed coin description and overview
-- `/dev <coin>` - Development activity and GitHub statistics
-- `/t <coin>` - Team information and key personnel
-- `/wp <coin>` - Find and link to coin's whitepaper
+- `/p <coin>` - Get current price
+- `/s <coin>` - Get detailed price info
+- `/c <coin> [days]` - Get price chart
+- `/cs <coin> [days]` - Get candlestick chart
+- `/top [limit]` - List top coins
+- `/best <24h|7d>` - Best performers
+- `/worst <24h|7d>` - Worst performers
 
-### Phase 2 - Advanced Features (Coming Soon)
+### Technical Analysis
 
-#### News & Social Media
+- `/ch <coin> [period]` - Price change analysis
+- `/roi <coin>` - Return on Investment
+- `/ath <coin>` - All Time High analysis
 
-- `/n <coin>` - Latest news articles about the coin
-- `/tw <coin>` - Recent tweets mentioning the coin
-- `/soc <coin>` - Social media presence and engagement
-- `/ev <coin>` - Upcoming events and conferences
+### Coin Information
 
-#### Technical Analysis
+- `/i <coin>` - General information
+- `/des <coin>` - Coin description
+- `/dev <coin>` - Development info
+- `/t <coin>` - Team information
+- `/wp <coin>` - Find whitepaper
 
-- `/ch <coin> [period]` - Price change analysis over time
-- `/roi <coin>` - Return on Investment calculations
-- `/ath <coin>` - All-time high price and related metrics
+### News & Community
 
-### Phase 3 - Utility Features (Future)
+- `/n <coin>` - Latest news
+- `/soc <coin>` - Social media links
+- `/ev <coin>` - Upcoming events
 
-#### Exchange & Trading
+### Utility Commands
 
-- `/m <coin>` - Find exchanges where the coin is traded
-- `/ex <exchange>` - Detailed exchange information
-- `/comp <coin1> <coin2>` - Compare two coins
+- `/about` - About the bot
+- `/help` - Show help message
+- `/status` - Check bot status
 
-#### Wallets
-
-- `/wa <coin>` - Recommended wallets and storage options
-
-## Implementation Plan
-
-### Phase 1 Implementation (Current)
-
-1. **Core Price Data**
-
-   - [x] Basic price commands (/p, /top, /best, /worst)
-   - [ ] Enhanced price data (/s command)
-   - [ ] Advanced charting (/c, /cs commands)
-
-2. **Basic Information**
-   - [ ] Coin information service
-   - [ ] Description and team data integration
-   - [ ] Whitepaper finder service
-
-### Phase 2 Implementation
-
-1. **News & Social Integration**
-
-   - [ ] News API integration
-   - [ ] Twitter API integration
-   - [ ] Social media aggregator
-
-2. **Technical Analysis**
-   - [ ] Price history analysis
-   - [ ] ROI calculator
-   - [ ] ATH tracking
-
-### Phase 3 Implementation
-
-1. **Exchange Integration**
-
-   - [ ] Exchange listing service
-   - [ ] Exchange comparison
-   - [ ] Trading pair finder
-
-2. **Wallet Integration**
-   - [ ] Wallet recommendation system
-   - [ ] Security features
-   - [ ] Storage options
-
-## Technical Architecture
-
-### Services
-
-- `CryptoService`: Core price and market data
-- `InfoService`: Coin information and metadata
-- `ChartService`: Technical analysis and charting
-- `NewsService`: News and social media integration
-- `ExchangeService`: Exchange and trading information
-- `WalletService`: Wallet recommendations
-
-### Data Sources
-
-- CoinGecko API for price and market data
-- GitHub API for development metrics
-- News APIs for cryptocurrency news
-- Twitter API for social media
-- Exchange APIs for trading information
-
-## Setup
+## 🔹 Setup
 
 1. Clone the repository
 2. Create a `.env.prod` file with your Telegram bot token:
@@ -123,7 +61,7 @@ A comprehensive cryptocurrency information and analysis Telegram bot built with 
 4. Run `./setup-server-env.sh` to set up the environment on the server
 5. Run `./deploy.sh` to deploy the bot
 
-## Development
+## 🔹 Development
 
 - `bot.py`: Main bot code
 - `telegram/handlers/`: Command handlers
@@ -132,7 +70,7 @@ A comprehensive cryptocurrency information and analysis Telegram bot built with 
 - `Dockerfile`: Container definition
 - `requirements.txt`: Python dependencies
 
-## Deployment
+## 🔹 Deployment
 
 The bot is deployed using a two-step process:
 
@@ -144,21 +82,27 @@ The bot is deployed using a two-step process:
    git push
    ```
 
-2. Deploy on the server:
+2. 2. Deploy on the server:
    ```bash
    ssh snel-bot "/opt/snel-telegram/pull-and-deploy.sh"
    ```
 
-The deployment script will:
-
-- Pull the latest changes from GitHub
-- Stop any running containers
-- Rebuild and start the containers
-- Show deployment status
-
-## Security
+## 🔹 Security
 
 - Environment variables are stored in `.env.prod` on the server
 - Sensitive files are gitignored
 - Docker container runs with minimal permissions
 - Setup scripts containing sensitive information are excluded from git
+
+## 🔹 Contact & Support
+
+- Farcaster: @papa
+- Lens: @papajams
+
+## 🔹 License
+
+MIT.
+
+---
+
+Remember: Slow and steady may not necessarily win the race, but crashing and burning is a sure way to lose it! 🌱
