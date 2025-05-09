@@ -12,7 +12,7 @@ class VeniceService:
         if not self.api_key:
             print("Warning: No Venice API key provided. Will fall back to Gemini AI.")
         
-        self.base_url = "https://api.venice.ai/v1"  # Replace with actual Venice API URL
+        self.base_url = "https://api.venice.ai/api/v1"  # Venice API base URL
         self.session = httpx.AsyncClient(timeout=30.0)
         
     async def close(self):
@@ -48,8 +48,9 @@ class VeniceService:
         enhanced_query = f"As SNEL the crypto snail, answer this query EXTREMELY BRIEFLY - ONE paragraph maximum (30-50 words). Add ONE quick snail reference. Query: {query}"
         
         data = {
-            "message": enhanced_query,
-            "context": context or []
+            "model": "llama-3.2-3b",
+            "messages": [{"role": "user", "content": enhanced_query}],
+            "temperature": 0.7
         }
         
         result = await self._make_request("chat/completions", data=data)
@@ -57,7 +58,10 @@ class VeniceService:
         if "error" in result:
             return f"I couldn't process your request through Venice AI: {result.get('error')}"
         
-        return result.get("response", "No response received from Venice AI")
+        try:
+            return result.get("choices", [{}])[0].get("message", {}).get("content", "No response received from Venice AI")
+        except (KeyError, IndexError):
+            return "No response received from Venice AI"
     
     async def analyze_stablecoin(self, coin_id: str, context_data: Dict) -> Dict:
         """Analyze a stablecoin using Venice AI."""
@@ -74,38 +78,41 @@ EXTREME BREVITY REQUIRED - 50 words absolute maximum.
 Format your analysis as a structured response.
 """
         data = {
-            "message": prompt,
-            "options": {
-                "structured_response": True
-            }
+            "model": "llama-3.2-3b",
+            "messages": [{"role": "user", "content": prompt}],
+            "temperature": 0.7
         }
         
-        result = await self._make_request("analyze/stablecoin", data=data)
+        result = await self._make_request("chat/completions", data=data)
         
         if "error" in result:
             return {"error": result.get("error")}
         
-        return result.get("analysis", {"error": "No analysis received"})
+        try:
+            analysis_text = result.get("choices", [{}])[0].get("message", {}).get("content", "")
+            return {"analysis": analysis_text}
+        except (KeyError, IndexError):
+            return {"error": "No analysis received"}
     
     async def get_educational_content(self, topic: str) -> str:
         """Get educational content about a stablecoin-related topic."""
         prompt = f"As SNEL the crypto snail, explain {topic} in ONE short paragraph only. Include ONE brief snail reference. EXTREME BREVITY REQUIRED - 40 words maximum."
         
         data = {
-            "topic": topic,
-            "prompt": prompt,
-            "options": {
-                "max_length": 200,
-                "format": "markdown"
-            }
+            "model": "llama-3.2-3b",
+            "messages": [{"role": "user", "content": prompt}],
+            "temperature": 0.7
         }
         
-        result = await self._make_request("education", data=data)
+        result = await self._make_request("chat/completions", data=data)
         
         if "error" in result:
             return f"I couldn't retrieve educational content about {topic} through Venice AI."
         
-        return result.get("content", f"No educational content received for {topic}")
+        try:
+            return result.get("choices", [{}])[0].get("message", {}).get("content", f"No educational content received for {topic}")
+        except (KeyError, IndexError):
+            return f"No educational content received for {topic}"
     
     async def compare_stablecoins(self, coin_ids: List[str], context_data: Optional[Dict] = None) -> str:
         """Compare multiple stablecoins using Venice AI."""
@@ -118,23 +125,25 @@ ULTRA BRIEF - 40 words maximum.
 Present as a concise markdown comparison.
 """
         data = {
-            "message": prompt,
-            "options": {
-                "format": "markdown"
-            }
+            "model": "llama-3.2-3b",
+            "messages": [{"role": "user", "content": prompt}],
+            "temperature": 0.7
         }
         
-        result = await self._make_request("compare/stablecoins", data=data)
+        result = await self._make_request("chat/completions", data=data)
         
         if "error" in result:
             return f"I couldn't complete the comparison through Venice AI."
         
-        return result.get("comparison", "No comparison received")
+        try:
+            return result.get("choices", [{}])[0].get("message", {}).get("content", "No comparison received")
+        except (KeyError, IndexError):
+            return "No comparison received"
     
     async def is_available(self) -> bool:
         """Check if the Venice AI service is available."""
         try:
-            result = await self._make_request("ping")
-            return not "error" in result
+            result = await self._make_request("models", method="GET")
+            return "data" in result and len(result["data"]) > 0
         except Exception:
             return False
