@@ -1,50 +1,62 @@
-# SNEL Bot Utility Scripts
+# SNEL Telegram Bot Scripts
 
-This directory contains utility scripts for managing the SNEL Telegram bot environment and development workflow.
+This directory contains utility scripts for managing the SNEL Telegram Bot.
 
-## Available Scripts
+## Setup Scripts
 
-- **load_env.sh**: Loads environment variables from .env file into your shell session
-- **fix-venv.sh**: Repairs Python virtual environment issues
-- **shell_integration.sh**: Provides shell functions for common bot operations
+- **setup-server-env.example.sh**: Template for setting up environment variables on the server
+- **setup-server-env.sh**: Script to set up environment variables on the server (create from example)
+- **setup-local-env.sh**: Script to set up environment variables for local development
+- **load_env.sh**: Utility to load environment variables in the current shell
+
+## Deployment Scripts
+
+- **check-env.sh**: Validates environment variables before deployment
+- **check-server-env.sh**: Checks and helps update environment variables on the server
+- **fix-venv.sh**: Fixes virtual environment issues
 
 ## Usage Instructions
 
-### Loading Environment Variables
+### Server Environment Setup
 
-The `load_env.sh` script loads all environment variables from your .env file:
+1. Copy `setup-server-env.example.sh` to `setup-server-env.sh`
+   ```bash
+   cp setup-server-env.example.sh setup-server-env.sh
+   ```
 
-```bash
-# From project root
-source scripts/load_env.sh
+2. Edit `setup-server-env.sh` with your API keys and credentials
 
-# Or the shorter syntax
-. scripts/load_env.sh
-```
+3. Run the script to set up environment on the server
+   ```bash
+   ./setup-server-env.sh
+   ```
 
-### Fixing Virtual Environment
+### Local Environment Setup
 
-If you encounter issues with your Python virtual environment:
+1. Set up local environment
+   ```bash
+   ./setup-local-env.sh
+   ```
 
-```bash
-# From project root
-bash scripts/fix-venv.sh
-```
+2. Load environment variables
+   ```bash
+   source load_env.sh
+   ```
 
-### Shell Integration
+### Checking Environment Variables
 
-To add helpful shell functions to your environment:
+- To check environment variables on the server:
+  ```bash
+  ./check-server-env.sh
+  ```
 
-```bash
-# Source the shell integration file
-source scripts/shell_integration.sh
+- To check local environment variables:
+  ```bash
+  ./check-env.sh
+  ```
 
-# Then you can use the functions
-load_env
-```
+## Notes
 
-## Best Practices
-
-- Always load environment variables before running the bot or tests
-- If you encounter dependency issues, try the fix-venv script
-- For regular development, consider using the direnv approach documented in docs/direnv_instructions.md
+- Scripts with sensitive information (API keys, tokens) are gitignored
+- Always use the `.example` versions as templates
+- Make scripts executable if needed: `chmod +x script_name.sh`
