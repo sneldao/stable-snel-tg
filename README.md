@@ -222,3 +222,72 @@ MIT.
 ---
 
 Remember: Slow and steady may not necessarily win the race, but crashing and burning is a sure way to lose it! 🌱
+
+## 🔹 AI Enhancement Roadmap
+
+Our vision for SNEL's future development focuses on enhancing its AI capabilities to provide even more value to users interested in stablecoins and RWAs. This roadmap outlines our planned improvements:
+
+### Phase 1: Enhanced Analysis Capabilities
+
+#### 1. Smart Analysis Command
+- **New Command**: `/smart <coin>` 
+- **Description**: Combines price data with AI analysis for comprehensive insights
+- **Implementation**:
+  - Integrate existing price data from `crypto_service` with AI analysis
+  - Create contextual prompts that focus on stability metrics and risk factors
+  - Format responses to highlight key stability indicators and potential concerns
+- **Benefits**: Provides users with AI-enhanced insights beyond raw data, helping them make more informed decisions
+
+#### 2. News Sentiment Analysis
+- **New Command**: `/sentiment <coin>`
+- **Description**: Uses AI to analyze sentiment in recent news about a coin
+- **Implementation**:
+  - Enhance the existing `news_service` to collect more comprehensive news data
+  - Create AI prompts focused on sentiment extraction and categorization
+  - Present a sentiment score with key positive/negative factors identified
+- **Benefits**: Helps users understand market perception and identify potential risks not reflected in price data
+
+### Phase 2: Economic & Global Data Integration
+
+#### 1. Inflation Data Integration
+- **New Services**: `WorldBankService` and `AlphaVantageService`
+- **New Commands**: 
+  - `/inflation <country>` - Global inflation data
+  - `/stable-value <coin> <country>` - Stablecoin value relative to local inflation
+- **Implementation**:
+  - Develop new service classes for World Bank and Alpha Vantage APIs
+  - Create data visualization capabilities for inflation trends
+  - Implement caching to respect API rate limits
+- **Benefits**: Provides global context for stablecoin usage, particularly valuable for users in high-inflation regions
+
+#### 2. Portfolio Analysis Tools
+- **New Commands**: 
+  - `/portfolio` - Analyze user's stablecoin portfolio
+  - `/diversify` - Get diversification recommendations
+- **Implementation**:
+  - Create temporary portfolio data storage during chat sessions
+  - Develop AI prompts for portfolio risk assessment
+  - Implement visualization of portfolio allocation
+- **Benefits**: Helps users maintain balanced exposure across different stablecoin types and regions
+
+### Phase 3: Advanced Integrations & Applications
+
+#### 1. Web App Integration Enhancement
+- **Description**: Deeper integration with Stable Station web app
+- **Implementation**:
+  - Create direct deep links to specific features on Stable Station
+  - Develop shared backend services between bot and web app
+  - Implement optional user authentication between platforms
+- **Benefits**: Seamless experience for users moving between the bot and web app
+
+#### 2. Predictive Analytics Features
+- **New Commands**: 
+  - `/trend <coin>` - Stability trend prediction
+  - `/alert <condition>` - Set up custom stability alerts
+- **Implementation**:
+  - Train specialized AI models on stablecoin historical data
+  - Develop notification system for predefined conditions
+  - Create visualization for trend predictions
+- **Benefits**: Anticipatory insights help users stay ahead of potential stability issues
+
+This roadmap represents our commitment to making stablecoin and RWA information more accessible, insightful, and actionable through the power of AI, while maintaining our philosophy of cautious, steady wealth preservation.
