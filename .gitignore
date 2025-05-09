@@ -40,11 +40,15 @@ setup-server-env.sh
 setup-local-env.sh
 *-env.sh
 !*-env.example.sh
+!check-env.sh
+!check-server-env.sh
 scripts/setup-env.sh
 scripts/setup-server-env.sh
 scripts/setup-local-env.sh
 scripts/*-env.sh
 !scripts/*-env.example.sh
+!scripts/check-env.sh
+!scripts/check-server-env.sh
 
 # IDE
 .idea/
