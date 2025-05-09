@@ -95,6 +95,10 @@ docs/_build/
 target/
 .run/
 
+# Cache and metrics data
+.cache/
+.metrics/
+
 # Sublime Text 2
 *.sublime*
 

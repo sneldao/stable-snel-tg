@@ -1,0 +1,81 @@
+# Exclude non-essential files for Docker builds
+
+# Version control
+.git/
+.github/
+.gitignore
+.github-ssh-config
+
+# Python artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Testing
+.tox/
+.coverage
+.coverage.*
+.cache/
+.pytest_cache/
+.mypy_cache/
+htmlcov/
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+
+# Environment files
+.env
+.env.*
+!.env.example
+setup-env.sh
+setup-server-env.sh
+setup-local-env.sh
+*-env.sh
+!*-env.example.sh
+scripts/setup-env.sh
+scripts/setup-server-env.sh
+scripts/setup-local-env.sh
+scripts/*-env.sh
+!scripts/*-env.example.sh
+
+# Documentation and auxiliary files
+*.md
+LICENSE
+docs/
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Data directories
+.cache/
+.metrics/
+logs/
+
+# Exclude .dockerignore and Dockerfile
+.dockerignore
+
+# Include the final Dockerfile
+!Dockerfile

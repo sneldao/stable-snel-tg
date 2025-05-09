@@ -5,10 +5,12 @@ import matplotlib.pyplot as plt
 import io
 from datetime import datetime, timedelta
 import mplfinance as mpf
+import os
 
 class CryptoService:
     def __init__(self):
         self.cg = CoinGeckoAPI()
+        self.api_key = os.getenv('COINGECKO_API_KEY')
         
     async def get_price(self, coin_id: str) -> Dict:
         """Get current price for a coin."""
@@ -24,7 +26,8 @@ class CryptoService:
         try:
             data = self.cg.get_coin_by_id(id=coin_id)
             market_data = data.get('market_data', {})
-            return {
+            
+            result = {
                 'current_price': market_data.get('current_price', {}).get('usd', 0),
                 'market_cap': market_data.get('market_cap', {}).get('usd', 0),
                 'total_volume': market_data.get('total_volume', {}).get('usd', 0),
@@ -38,6 +41,13 @@ class CryptoService:
                 'total_supply': market_data.get('total_supply', 0),
                 'max_supply': market_data.get('max_supply', 0)
             }
+            
+            # Convert None values to 0 to avoid formatting errors
+            for key, value in result.items():
+                if value is None:
+                    result[key] = 0
+                    
+            return result
         except Exception as e:
             print(f"Error getting detailed price for {coin_id}: {e}")
             return {}
@@ -53,6 +63,10 @@ class CryptoService:
     async def get_top_coins(self, limit: int = 30) -> List[Dict]:
         """Get top coins by market cap."""
         try:
+            # Convert to int if passed as string
+            if isinstance(limit, str) and limit.isdigit():
+                limit = int(limit)
+                
             return self.cg.get_coins_markets(vs_currency='usd', order='market_cap_desc', per_page=limit, page=1)
         except Exception as e:
             print(f"Error getting top coins: {e}")
@@ -67,7 +81,11 @@ class CryptoService:
             else:
                 key = 'price_change_percentage_7d_in_currency'
                 
-            sorted_coins = sorted(coins, key=lambda x: x.get(key, 0), reverse=(direction == 'gainers'))
+            # Filter out coins with None values
+            valid_coins = [coin for coin in coins if coin.get(key) is not None]
+            
+            # Sort by price change
+            sorted_coins = sorted(valid_coins, key=lambda x: x.get(key, 0), reverse=(direction == 'gainers'))
             return sorted_coins[:10]
         except Exception as e:
             print(f"Error getting movers: {e}")
@@ -76,6 +94,10 @@ class CryptoService:
     async def generate_price_chart(self, coin_id: str, days: int = 7) -> Optional[bytes]:
         """Generate a price chart with volume overlay."""
         try:
+            # Convert to int if passed as string
+            if isinstance(days, str) and days.isdigit():
+                days = int(days)
+                
             # Get historical data
             data = self.cg.get_coin_market_chart_by_id(id=coin_id, vs_currency='usd', days=days)
             
@@ -119,6 +141,10 @@ class CryptoService:
     async def generate_candlestick_chart(self, coin_id: str, days: int = 7) -> Optional[bytes]:
         """Generate a candlestick chart."""
         try:
+            # Convert to int if passed as string
+            if isinstance(days, str) and days.isdigit():
+                days = int(days)
+                
             # Get historical data
             data = self.cg.get_coin_market_chart_by_id(id=coin_id, vs_currency='usd', days=days)
             
@@ -165,17 +191,20 @@ class CryptoService:
             current_price = market_data.get('current_price', {}).get('usd', 0)
             price_change = market_data.get(change_key, 0)
             
-            return {
-                'current_price': current_price,
-                'price_change': price_change,
+            # Handle None values
+            result = {
+                'current_price': current_price or 0,
+                'price_change': price_change or 0,
                 'period': period,
-                'high_24h': market_data.get('high_24h', {}).get('usd', 0),
-                'low_24h': market_data.get('low_24h', {}).get('usd', 0),
-                'ath': market_data.get('ath', {}).get('usd', 0),
-                'ath_date': market_data.get('ath_date', {}).get('usd', ''),
-                'atl': market_data.get('atl', {}).get('usd', 0),
-                'atl_date': market_data.get('atl_date', {}).get('usd', '')
+                'high_24h': market_data.get('high_24h', {}).get('usd', 0) or 0,
+                'low_24h': market_data.get('low_24h', {}).get('usd', 0) or 0,
+                'ath': market_data.get('ath', {}).get('usd', 0) or 0,
+                'ath_date': market_data.get('ath_date', {}).get('usd', '') or '',
+                'atl': market_data.get('atl', {}).get('usd', 0) or 0,
+                'atl_date': market_data.get('atl_date', {}).get('usd', '') or ''
             }
+            
+            return result
         except Exception as e:
             print(f"Error getting price change for {coin_id}: {e}")
             return {}
@@ -186,11 +215,11 @@ class CryptoService:
             data = self.cg.get_coin_by_id(id=coin_id)
             market_data = data.get('market_data', {})
             
-            current_price = market_data.get('current_price', {}).get('usd', 0)
-            ath = market_data.get('ath', {}).get('usd', 0)
-            ath_date = market_data.get('ath_date', {}).get('usd', '')
-            atl = market_data.get('atl', {}).get('usd', 0)
-            atl_date = market_data.get('atl_date', {}).get('usd', '')
+            current_price = market_data.get('current_price', {}).get('usd', 0) or 0
+            ath = market_data.get('ath', {}).get('usd', 0) or 0
+            ath_date = market_data.get('ath_date', {}).get('usd', '') or ''
+            atl = market_data.get('atl', {}).get('usd', 0) or 0
+            atl_date = market_data.get('atl_date', {}).get('usd', '') or ''
             
             # Calculate ROI from ATH
             ath_roi = ((current_price - ath) / ath) * 100 if ath > 0 else 0
@@ -217,16 +246,21 @@ class CryptoService:
             data = self.cg.get_coin_by_id(id=coin_id)
             market_data = data.get('market_data', {})
             
-            current_price = market_data.get('current_price', {}).get('usd', 0)
-            ath = market_data.get('ath', {}).get('usd', 0)
-            ath_date = market_data.get('ath_date', {}).get('usd', '')
+            current_price = market_data.get('current_price', {}).get('usd', 0) or 0
+            ath = market_data.get('ath', {}).get('usd', 0) or 0
+            ath_date = market_data.get('ath_date', {}).get('usd', '') or ''
             
             # Calculate percentage from ATH
             ath_percentage = (current_price / ath) * 100 if ath > 0 else 0
             
             # Calculate days since ATH
-            ath_datetime = datetime.fromisoformat(ath_date.replace('Z', '+00:00'))
-            days_since_ath = (datetime.now(ath_datetime.tzinfo) - ath_datetime).days
+            days_since_ath = 0
+            if ath_date:
+                try:
+                    ath_datetime = datetime.fromisoformat(ath_date.replace('Z', '+00:00'))
+                    days_since_ath = (datetime.now(ath_datetime.tzinfo) - ath_datetime).days
+                except Exception as e:
+                    print(f"Error parsing ATH date: {e}")
             
             return {
                 'current_price': current_price,
@@ -237,4 +271,4 @@ class CryptoService:
             }
         except Exception as e:
             print(f"Error getting ATH analysis for {coin_id}: {e}")
-            return {} 
+            return {}

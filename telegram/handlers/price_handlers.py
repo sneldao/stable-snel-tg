@@ -41,19 +41,32 @@ class PriceHandlers:
             await update.message.reply_text(f"Could not find detailed price data for {coin_id}")
             return
             
+        # Default to 0 for any None values
+        current_price = price_data.get('current_price', 0) or 0
+        market_cap = price_data.get('market_cap', 0) or 0
+        total_volume = price_data.get('total_volume', 0) or 0
+        high_24h = price_data.get('high_24h', 0) or 0
+        low_24h = price_data.get('low_24h', 0) or 0
+        price_change_24h = price_data.get('price_change_percentage_24h', 0) or 0
+        price_change_7d = price_data.get('price_change_percentage_7d', 0) or 0
+        price_change_30d = price_data.get('price_change_percentage_30d', 0) or 0
+        circulating_supply = price_data.get('circulating_supply', 0) or 0
+        total_supply = price_data.get('total_supply', 0) or 0
+        max_supply = price_data.get('max_supply', 0) or 0
+            
         message = (
             f"📊 {coin_id.upper()} Detailed Price Info:\n\n"
-            f"Current Price: ${price_data['current_price']:,.2f}\n"
-            f"Market Cap: ${price_data['market_cap']:,.2f}\n"
-            f"24h Volume: ${price_data['total_volume']:,.2f}\n"
-            f"24h High: ${price_data['high_24h']:,.2f}\n"
-            f"24h Low: ${price_data['low_24h']:,.2f}\n"
-            f"24h Change: {price_data['price_change_percentage_24h']:+.2f}%\n"
-            f"7d Change: {price_data['price_change_percentage_7d']:+.2f}%\n"
-            f"30d Change: {price_data['price_change_percentage_30d']:+.2f}%\n\n"
-            f"Circulating Supply: {price_data['circulating_supply']:,.0f}\n"
-            f"Total Supply: {price_data['total_supply']:,.0f}\n"
-            f"Max Supply: {price_data['max_supply']:,.0f}"
+            f"Current Price: ${current_price:,.2f}\n"
+            f"Market Cap: ${market_cap:,.2f}\n"
+            f"24h Volume: ${total_volume:,.2f}\n"
+            f"24h High: ${high_24h:,.2f}\n"
+            f"24h Low: ${low_24h:,.2f}\n"
+            f"24h Change: {price_change_24h:+.2f}%\n"
+            f"7d Change: {price_change_7d:+.2f}%\n"
+            f"30d Change: {price_change_30d:+.2f}%\n\n"
+            f"Circulating Supply: {circulating_supply:,.0f}\n"
+            f"Total Supply: {total_supply:,.0f}\n"
+            f"Max Supply: {max_supply:,.0f}"
         )
         await update.message.reply_text(message)
         
@@ -121,9 +134,13 @@ class PriceHandlers:
             
         message = "📊 Top Coins by Market Cap:\n\n"
         for i, coin in enumerate(coins, 1):
+            price_change = coin.get('price_change_percentage_24h', 0)
+            if price_change is None:
+                price_change = 0
+                
             message += (
                 f"{i}. {coin['symbol'].upper()}: ${coin['current_price']:,.2f}\n"
-                f"   24h: {coin['price_change_percentage_24h']:+.2f}%\n"
+                f"   24h: {price_change:+.2f}%\n"
             )
             
         await update.message.reply_text(message)
@@ -139,19 +156,30 @@ class PriceHandlers:
             await update.message.reply_text("Invalid timeframe. Use 24h or 7d")
             return
             
-        direction = 'gainers' if update.message.text.startswith('/best') else 'losers'
+        # Check if command is /best or /worst
+        direction = 'gainers'  # Default
+        if update.message and update.message.text:
+            if update.message.text.startswith('/worst'):
+                direction = 'losers'
+                
         coins = await self.crypto_service.get_movers(timeframe, direction)
         
         if not coins:
             await update.message.reply_text(f"Could not fetch {direction} data")
             return
             
-        message = f"📈 Top {direction.title()} ({timeframe}):\n\n"
+        title = "Gainers" if direction == 'gainers' else "Losers"
+        message = f"📈 Top {title} ({timeframe}):\n\n"
+        
         for i, coin in enumerate(coins, 1):
             change_key = 'price_change_percentage_24h' if timeframe == '24h' else 'price_change_percentage_7d_in_currency'
+            price_change = coin.get(change_key, 0)
+            if price_change is None:
+                price_change = 0
+                
             message += (
                 f"{i}. {coin['symbol'].upper()}: ${coin['current_price']:,.2f}\n"
-                f"   Change: {coin[change_key]:+.2f}%\n"
+                f"   Change: {price_change:+.2f}%\n"
             )
             
-        await update.message.reply_text(message) 
+        await update.message.reply_text(message)

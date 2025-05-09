@@ -1,6 +1,6 @@
 # 🐌 SNEL - Stablecoin & RWA Information Bot
 
-A Telegram bot focused on stablecoins and real-world assets (RWAs), providing reliable market data and educational resources. Built with a philosophy of slow, steady growth and risk awareness.
+A Telegram bot focused on stablecoins and real-world assets (RWAs), providing reliable market data and educational resources. Built with a philosophy of slow, steady growth and risk awareness. Features advanced caching, error handling with retries, rate limiting, and monitoring.
 
 ## 🔹 Philosophy
 
@@ -82,7 +82,20 @@ stable-snel-tg/
 │   └── shell_integration.sh
 ├── telegram/              # Bot modules
 │   ├── handlers/          # Command handlers
-│   └── services/          # Business logic services
+│   ├── services/          # Business logic services
+│   │   ├── crypto_service.py            # Basic crypto data service
+│   │   ├── enhanced_crypto_service.py   # Enhanced service with caching and retries
+│   │   ├── info_service.py              # Cryptocurrency information
+│   │   ├── news_service.py              # News and social media info
+│   │   ├── ai_service.py                # Gemini AI integration
+│   │   └── venice_service.py            # Venice API for stablecoin data
+│   └── utils/             # Utility functions
+│       ├── cache.py       # Caching system with persistence
+│       ├── retries.py     # Error handling with retries and circuit breaker
+│       ├── logging.py     # Advanced logging utilities
+│       ├── metrics.py     # Performance and monitoring metrics
+│       ├── startup.py     # Application startup utilities
+│       └── limits/        # Rate limiting implementation
 └── tests/                 # Test scripts
     ├── test_ai.py         # AI integration tests
     ├── test_ai_features.py # AI-focused test bot
@@ -105,6 +118,8 @@ stable-snel-tg/
 4. Run `./scripts/setup-server-env.sh` to set up the environment on the server
 5. Run `./deploy.sh` to deploy the bot
 
+For detailed setup instructions, see [docs/SETUP.md](docs/SETUP.md).
+
 ### Local Testing
 
 For local development and testing:
@@ -121,10 +136,17 @@ The bot is organized into several components:
 - **Handlers**: Process commands and user interactions
 - **Services**: Provide business logic and external API integration
   - `crypto_service.py`: CoinGecko API integration
+  - `enhanced_crypto_service.py`: Extended service with caching and retries
   - `info_service.py`: Cryptocurrency information
   - `news_service.py`: News and social media info
   - `ai_service.py`: Gemini AI integration
   - `venice_service.py`: Venice API for stablecoin data
+- **Utils**: Utility functions and infrastructure
+  - `cache.py`: In-memory caching with persistence
+  - `retries.py`: Automatic retries with circuit breaker pattern
+  - `metrics.py`: Performance monitoring and reporting
+  - `logging.py`: Structured and configurable logging
+  - `limits`: Rate limiting for external APIs
 
 ## 🔹 Deployment
 
@@ -149,6 +171,33 @@ The bot is deployed using a two-step process:
 - Sensitive files are gitignored
 - Docker container runs with minimal permissions
 - Setup scripts containing sensitive information are excluded from git
+- Circuit breakers prevent cascading failures
+- Rate limiting protects against API abuse and quota exhaustion
+
+## 🔹 Reliability Features
+
+- **Caching System**: Improves performance and reduces API calls
+  - In-memory cache with configurable TTL
+  - Disk persistence to survive restarts
+  - Automatic cleanup of expired entries
+  
+- **Error Handling**: Robust handling of failures
+  - Automatic retries with exponential backoff
+  - Circuit breaker pattern to prevent cascading failures
+  - Intelligent handling of rate limits and temporary errors
+  
+- **Rate Limiting**: Smart throttling of external API requests
+  - Token bucket algorithm for precise rate control
+  - Fair sharing of resources when under contention
+  - Service-specific limits based on API requirements
+  
+- **Monitoring**: Comprehensive metrics and reporting
+  - API call performance tracking
+  - Cache efficiency monitoring
+  - Circuit breaker status tracking
+  - Human-readable reports for analysis
+
+For detailed information on these features, see [docs/UTILITIES.md](docs/UTILITIES.md).
 
 ## 🔹 Web App Integration
 
