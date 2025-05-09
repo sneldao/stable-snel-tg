@@ -109,8 +109,20 @@ async def status_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     )
 
 async def echo(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    # Forward to AI chat handler for more intelligent responses
-    await ai_handlers.chat_message(update, context)
+    """
+    Handle normal text messages (non-commands):
+    - Process all direct message chats
+    - In groups, only respond when mentioned
+    """
+    try:
+        # Forward message to AI handler which will handle both direct messages
+        # and group mentions appropriately
+        await ai_handlers.chat_message(update, context)
+    except Exception as e:
+        print(f"Error in AI chat handling: {e}")
+        # Fallback to basic echo if AI fails
+        if update.effective_chat.type == 'private':
+            await update.message.reply_text("I'm a bit slow at the moment 🐌. Try a command like /help or /p bitcoin")
 
 def main():
     # Create the Application
@@ -164,4 +176,4 @@ def main():
     application.run_polling()
 
 if __name__ == '__main__':
-    main() 
+    main()

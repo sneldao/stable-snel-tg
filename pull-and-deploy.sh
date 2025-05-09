@@ -4,9 +4,13 @@
 GREEN='\033[0;32m'
 RED='\033[0;31m'
 YELLOW='\033[0;33m'
+BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
 echo -e "${YELLOW}Starting manual deployment process...${NC}"
+
+# Get the directory of the script
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 
 # Change to the project directory
 cd /opt/snel-telegram
@@ -15,6 +19,13 @@ cd /opt/snel-telegram
 echo -e "\n${YELLOW}Pulling latest changes from GitHub...${NC}"
 if ! git pull origin master; then
     echo -e "${RED}Failed to pull changes${NC}"
+    exit 1
+fi
+
+# Check environment variables
+echo -e "\n${YELLOW}Checking environment variables...${NC}"
+if ! bash scripts/check-env.sh; then
+    echo -e "${RED}Environment check failed. Please fix the missing variables and try again.${NC}"
     exit 1
 fi
 

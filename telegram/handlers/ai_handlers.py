@@ -201,23 +201,40 @@ class AIHandlers:
         await update.message.reply_text(message, parse_mode='Markdown')
         
     async def chat_message(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-        """Handle messages not directed at specific commands."""
-        # Only respond to messages that explicitly mention the bot by username
-        if not update.message.text:
+        """Handle text messages not directed at specific commands."""
+        # Don't process empty messages
+        if not update.message or not update.message.text:
             return
             
+        message_text = update.message.text.strip()
+        
+        # Check if this is a direct message (private chat)
+        is_direct_message = update.effective_chat.type == 'private'
+        
+        # Check if the bot was mentioned in a group chat
         bot_username = context.bot.username
-        if f"@{bot_username}" in update.message.text:
-            # Remove the bot username from the message
-            query = update.message.text.replace(f"@{bot_username}", "").strip()
+        is_mentioned = bot_username and f"@{bot_username}" in message_text
+        
+        # Only respond in direct messages or when mentioned in groups
+        if not (is_direct_message or is_mentioned):
+            return
             
-            # Send snail chat emoji
-            await update.message.reply_text(f"{random.choice(['🐌💬', '🐌🎧', '🐌⌛', '🐌👂', '🐌🤔', '🐌📝', '🐚📢', '🐌💭', '🐌✍️', '💤🐌'])}")
+        # If mentioned, remove the bot username from the message
+        query = message_text
+        if is_mentioned:
+            query = message_text.replace(f"@{bot_username}", "").strip()
             
-            # Send typing indicator
-            await context.bot.send_chat_action(chat_id=update.effective_chat.id, action="typing")
+        # If the query is empty after processing, use a default greeting
+        if not query:
+            query = "Hello"
             
-            # Get AI response
-            response = await self.ai_service.get_response(query)
-            
-            await update.message.reply_text(response)
+        # Send snail chat emoji
+        await update.message.reply_text(f"{random.choice(['🐌💬', '🐌🎧', '🐌⌛', '🐌👂', '🐌🤔', '🐌📝', '🐚📢', '🐌💭', '🐌✍️', '💤🐌'])}")
+        
+        # Send typing indicator
+        await context.bot.send_chat_action(chat_id=update.effective_chat.id, action="typing")
+        
+        # Get AI response
+        response = await self.ai_service.get_response(query)
+        
+        await update.message.reply_text(response)
