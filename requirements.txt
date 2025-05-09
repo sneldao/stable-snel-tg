@@ -12,4 +12,5 @@ matplotlib==3.8.2
 python-binance==1.0.19
 mplfinance==0.12.10b0
 beautifulsoup4==4.12.2
-requests==2.31.0    
+requests==2.31.0
+google-generativeai==0.3.1

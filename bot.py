@@ -7,6 +7,7 @@ from telegram.handlers.price_handlers import PriceHandlers
 from telegram.handlers.info_handlers import InfoHandlers
 from telegram.handlers.news_handlers import NewsHandlers
 from telegram.handlers.analysis_handlers import AnalysisHandlers
+from telegram.handlers.ai_handlers import AIHandlers
 from datetime import datetime
 
 # Load environment variables
@@ -23,95 +24,93 @@ price_handlers = PriceHandlers()
 info_handlers = InfoHandlers()
 news_handlers = NewsHandlers()
 analysis_handlers = AnalysisHandlers()
+ai_handlers = AIHandlers()
 
 async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    user_first_name = update.effective_user.first_name
     await update.message.reply_text(
-        '🐌 *Welcome to SNEL!*\n\n'
-        'I\'m your slow and steady guide through the world of stablecoins and real-world assets. No rush, no FOMO, just reliable information and safe practices.\n\n'
-        '🔹 *What I Do*\n'
-        '• Track stablecoin prices and market data\n'
-        '• Monitor RWA (Real World Asset) performance\n'
-        '• Provide market stability indicators\n'
-        '• Share security best practices\n\n'
-        '🔹 *Getting Started*\n'
-        'Try these commands to get familiar:\n'
-        '• `/p usdc` - Check a stablecoin price\n'
-        '• `/s usdt` - Get detailed stablecoin info\n'
+        f'Hello {user_first_name}! 🐌 I\'m SNEL (Slow Notably Enlightened Libertarian)!\n\n'
+        'I may be slow-moving, but I\'m crypto-savvy! I can help you:\n'
+        '• Swap tokens (at my own pace...)\n'
+        '• Bridge assets across chains (slowly but surely)\n'
+        '• Check balances (counting takes time!)\n'
+        '• Navigate stablecoins & real-world assets\n\n'
+        '🔹 *Commands*\n'
+        '• `/p usdc` - Check stablecoin price\n'
+        '• `/s usdt` - Detailed price info\n'
         '• `/i dai` - Learn about a stablecoin\n'
-        '• `/n usdc` - Latest stablecoin news\n\n'
+        '• `/ask` - Ask me any crypto question\n\n'
         '🔹 *Need Help?*\n'
         '• `/help` - See all available commands\n'
         '• `/about` - Learn more about me\n'
         '• `/status` - Check if I\'m running smoothly\n\n'
-        'Remember: Slow and steady may not necessarily win the race, but crashing and burning is a sure way to lose it! 🌱\n\n'
-        'Have questions? Reach out to @papa on Farcaster or @papajams on Lens.',
+        'Visit my web-garden: https://stable-station.netlify.app/\n'
+        'For guided stablecoin swaps & portfolio diversification\n\n'
+        '🐌 In crypto, the tortoise beats the REKT hare!',
         parse_mode='Markdown'
     )
 
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(
-        '📚 Available Commands:\n\n'
+        '🐌 SNEL\'s Slow-Motion Help Guide 🐌\n\n'
         'Price & Market Data:\n'
-        '• /p <coin> - Get current price\n'
-        '• /s <coin> - Get detailed price info\n'
-        '• /c <coin> [days] - Get price chart\n'
-        '• /cs <coin> [days] - Get candlestick chart\n'
+        '• /p <coin> - Current price\n'
+        '• /s <coin> - Detailed price info\n'
+        '• /c <coin> [days] - Price chart\n'
         '• /top [limit] - List top coins\n'
         '• /best <24h|7d> - Best performers\n'
         '• /worst <24h|7d> - Worst performers\n\n'
-        'Technical Analysis:\n'
-        '• /ch <coin> [period] - Price change analysis\n'
+        'Coin Analysis:\n'
+        '• /ch <coin> [period] - Price change\n'
         '• /roi <coin> - Return on Investment\n'
-        '• /ath <coin> - All Time High analysis\n\n'
-        'Coin Information:\n'
-        '• /i <coin> - General information\n'
-        '• /des <coin> - Coin description\n'
-        '• /dev <coin> - Development info\n'
-        '• /t <coin> - Team information\n'
-        '• /wp <coin> - Find whitepaper\n\n'
-        'News & Community:\n'
+        '• /i <coin> - General information\n\n'
+        'AI & Stablecoin Features:\n'
+        '• /ask <question> - Ask me anything\n'
+        '• /analyze <coin> - Stablecoin analysis\n'
+        '• /learn <topic> - Educational content\n'
+        '• /compare <coin1> <coin2> - Compare stablecoins\n'
+        '• /risk <coin> - Risk assessment\n'
+        '• /market - Stablecoin market overview\n\n'
+        'News & Info:\n'
         '• /n <coin> - Latest news\n'
         '• /soc <coin> - Social media links\n'
         '• /ev <coin> - Upcoming events\n\n'
-        'Utility Commands:\n'
-        '• /about - About the bot\n'
-        '• /help - Show this help message\n'
-        '• /status - Check bot status\n\n'
-        'Examples:\n'
-        '• /p bitcoin - Get Bitcoin price\n'
-        '• /ch ethereum 30d - Get ETH price change (30 days)\n'
-        '• /n solana - Get latest Solana news\n'
-        '• /roi cardano - Get ADA ROI analysis'
+        'Web App: https://stable-station.netlify.app/\n'
+        'For guided stablecoin swaps & portfolio diversification\n\n'
+        '🐚 I move slowly, but my crypto advice is worth the wait!'
     )
 
 async def about_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(
-        '🐌 SNEL\n\n'
-        'I\'m a super pointless lazy agent whose pursuit of slow stable growth is as much rooted in risk aversion as it is in my love of the soft life.\n\n'
-        '🔹 Philosophy\n'
-        'My first love is stablecoins and real world assets, strange concepts to the degen i know, but I sweat/slime more think of losing it all than my appetite for the fables pot of gold 100x at the end of the rainbow.\n\n'
-        '🔹 Features\n'
-        '• Clear, reliable information about stables & RWAs\n'
-        '• Market stability indicators\n'
-        '• Safe storage and security practices\n\n'
-        '🔹 Usage\n'
-        'You can chat with me directly (@stable_snel_bot) or add me to your group.\n\n'
-        '🔹 Development\n'
-        'My development prioritizes accuracy and reliability over speed.\n\n'
-        'Have suggestions or feedback? Reach out to @papa on farcaster and/or @papajams on lens.\n\n'
-        'Slow and steady may not neccessarily win the race, but crashing and burning is a sure way to lose it! 🌱'
+        '🐌 About SNEL\n\n'
+        'I\'m SNEL (Slow Notably Enlightened Libertarian), a crypto snail who takes my time but gives solid advice!\n\n'
+        '🔹 My Story\n'
+        'While others race for quick gains, I slowly crawl toward steady growth. My shell protects me from market volatility, just like I protect your crypto journey.\n\n'
+        '🔹 Specialties\n'
+        '• Stablecoins & Real World Assets (RWAs)\n'
+        '• Token swaps & bridges (at snail speed)\n'
+        '• Portfolio diversification\n'
+        '• Risk assessment (my antenna detect danger!)\n\n'
+        '🔹 Visit My Web Garden\n'
+        'https://stable-station.netlify.app/\n'
+        'For guided stablecoin swaps & global diversification\n\n'
+        '🐚 Shell wisdom: In crypto, slow and steady makes you ready!'
     )
 
 async def status_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(
-        '✅ Bot Status: Online\n\n'
-        'All systems operational\n'
-        'API connections: Active\n'
-        'Last update: ' + datetime.now().strftime('%Y-%m-%d %H:%M:%S UTC')
+        '🐌 SNEL Status Check\n\n'
+        '✅ Antenna: Functioning\n'
+        '✅ Shell: Intact\n'
+        '✅ Crypto knowledge: Up to date\n'
+        '✅ Slime trail: Fresh\n\n'
+        'Last crawl: ' + datetime.now().strftime('%Y-%m-%d %H:%M:%S UTC') + '\n\n'
+        'Moving slow but steady as always! 🐚'
     )
 
 async def echo(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text(update.message.text)
+    # Forward to AI chat handler for more intelligent responses
+    await ai_handlers.chat_message(update, context)
 
 def main():
     # Create the Application
@@ -148,6 +147,14 @@ def main():
     application.add_handler(CommandHandler("ch", analysis_handlers.price_change_command))
     application.add_handler(CommandHandler("roi", analysis_handlers.roi_command))
     application.add_handler(CommandHandler("ath", analysis_handlers.ath_command))
+    
+    # AI handlers
+    application.add_handler(CommandHandler("ask", ai_handlers.ask_command))
+    application.add_handler(CommandHandler("analyze", ai_handlers.analyze_command))
+    application.add_handler(CommandHandler("learn", ai_handlers.learn_command))
+    application.add_handler(CommandHandler("compare", ai_handlers.compare_command))
+    application.add_handler(CommandHandler("risk", ai_handlers.risk_command))
+    application.add_handler(CommandHandler("market", ai_handlers.market_command))
     
     # Echo handler for any other text
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, echo))

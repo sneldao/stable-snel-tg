@@ -37,6 +37,14 @@ ENV/
 # Setup scripts
 setup-env.sh
 setup-server-env.sh
+setup-local-env.sh
+*-env.sh
+!*-env.example.sh
+scripts/setup-env.sh
+scripts/setup-server-env.sh
+scripts/setup-local-env.sh
+scripts/*-env.sh
+!scripts/*-env.example.sh
 
 # IDE
 .idea/
