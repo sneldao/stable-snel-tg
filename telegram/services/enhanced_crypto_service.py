@@ -8,6 +8,7 @@ from ..utils.cache import cached
 from ..utils.retries import retry, is_recoverable_error
 from ..utils.limits.token_bucket import get_limiter
 from ..utils.metrics import record_api_call
+from ..utils.coin_mapper import get_coin_id
 from .crypto_service import CryptoService
 
 # Configure logger
@@ -44,6 +45,8 @@ class EnhancedCryptoService(CryptoService):
     @retry(max_retries=3, initial_delay=1.0, backoff_factor=2.0, circuit_breaker="coingecko")
     async def get_price(self, coin_id: str) -> Dict:
         """Get current price for a coin with caching and retries."""
+        # Map symbol to coin ID if needed
+        coin_id = get_coin_id(coin_id)
         logger.debug(f"Fetching price for {coin_id}")
         
         # Apply rate limiting
@@ -70,6 +73,8 @@ class EnhancedCryptoService(CryptoService):
     @retry(max_retries=3, initial_delay=1.0, backoff_factor=2.0, circuit_breaker="coingecko")
     async def get_detailed_price(self, coin_id: str) -> Dict:
         """Get detailed price information with caching and retries."""
+        # Map symbol to coin ID if needed
+        coin_id = get_coin_id(coin_id)
         logger.debug(f"Fetching detailed price for {coin_id}")
         
         # Apply rate limiting
@@ -95,6 +100,8 @@ class EnhancedCryptoService(CryptoService):
     @retry(max_retries=3, initial_delay=1.0, backoff_factor=2.0, circuit_breaker="coingecko")
     async def get_coin_info(self, coin_id: str) -> Dict:
         """Get detailed information about a coin with caching and retries."""
+        # Map symbol to coin ID if needed
+        coin_id = get_coin_id(coin_id)
         logger.debug(f"Fetching coin info for {coin_id}")
         
         # Apply rate limiting
@@ -152,6 +159,8 @@ class EnhancedCryptoService(CryptoService):
     @retry(max_retries=3, initial_delay=1.0, backoff_factor=2.0, circuit_breaker="coingecko")
     async def generate_price_chart(self, coin_id: str, days: int = 7) -> Optional[bytes]:
         """Generate a price chart with caching and retries."""
+        # Map symbol to coin ID if needed
+        coin_id = get_coin_id(coin_id)
         logger.debug(f"Generating price chart for {coin_id} over {days} days")
         return await super().generate_price_chart(coin_id, days)
     
@@ -159,6 +168,8 @@ class EnhancedCryptoService(CryptoService):
     @retry(max_retries=3, initial_delay=1.0, backoff_factor=2.0, circuit_breaker="coingecko")
     async def generate_candlestick_chart(self, coin_id: str, days: int = 7) -> Optional[bytes]:
         """Generate a candlestick chart with caching and retries."""
+        # Map symbol to coin ID if needed
+        coin_id = get_coin_id(coin_id)
         logger.debug(f"Generating candlestick chart for {coin_id} over {days} days")
         return await super().generate_candlestick_chart(coin_id, days)
     
@@ -166,6 +177,8 @@ class EnhancedCryptoService(CryptoService):
     @retry(max_retries=3, initial_delay=1.0, backoff_factor=2.0, circuit_breaker="coingecko")
     async def get_price_change(self, coin_id: str, period: str = '7d') -> Dict:
         """Get price change analysis with caching and retries."""
+        # Map symbol to coin ID if needed
+        coin_id = get_coin_id(coin_id)
         logger.debug(f"Getting price change for {coin_id} over {period}")
         return await super().get_price_change(coin_id, period)
     
@@ -173,6 +186,8 @@ class EnhancedCryptoService(CryptoService):
     @retry(max_retries=3, initial_delay=1.0, backoff_factor=2.0, circuit_breaker="coingecko")
     async def get_roi(self, coin_id: str) -> Dict:
         """Calculate Return on Investment with caching and retries."""
+        # Map symbol to coin ID if needed
+        coin_id = get_coin_id(coin_id)
         logger.debug(f"Calculating ROI for {coin_id}")
         return await super().get_roi(coin_id)
     
@@ -180,6 +195,8 @@ class EnhancedCryptoService(CryptoService):
     @retry(max_retries=3, initial_delay=1.0, backoff_factor=2.0, circuit_breaker="coingecko")
     async def get_ath_analysis(self, coin_id: str) -> Dict:
         """Get All Time High analysis with caching and retries."""
+        # Map symbol to coin ID if needed
+        coin_id = get_coin_id(coin_id)
         logger.debug(f"Getting ATH analysis for {coin_id}")
         return await super().get_ath_analysis(coin_id)
     

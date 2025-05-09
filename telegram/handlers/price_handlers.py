@@ -1,6 +1,7 @@
 from telegram import Update
 from telegram.ext import ContextTypes
 from ..services.crypto_service import CryptoService
+from ..utils.coin_mapper import get_coin_id, get_symbol_from_id
 from typing import Optional
 
 class PriceHandlers:
@@ -13,15 +14,18 @@ class PriceHandlers:
             await update.message.reply_text("Please provide a coin ID. Example: /p bitcoin")
             return
             
-        coin_id = context.args[0].lower()
+        input_text = context.args[0].lower()
+        coin_id = get_coin_id(input_text)
         price_data = await self.crypto_service.get_price(coin_id)
         
         if not price_data:
-            await update.message.reply_text(f"Could not find price data for {coin_id}")
+            await update.message.reply_text(f"Could not find price data for {input_text}")
             return
-            
+        
+        # Use the symbol if available, otherwise use the coin_id
+        display_name = get_symbol_from_id(coin_id) or coin_id.upper()
         message = (
-            f"💰 {coin_id.upper()} Price:\n"
+            f"💰 {display_name} Price:\n"
             f"${price_data.get('usd', 'N/A'):,.2f}\n"
             f"24h Volume: ${price_data.get('usd_24h_vol', 'N/A'):,.2f}\n"
             f"Market Cap: ${price_data.get('usd_market_cap', 'N/A'):,.2f}"
@@ -34,11 +38,12 @@ class PriceHandlers:
             await update.message.reply_text("Please provide a coin ID. Example: /s bitcoin")
             return
             
-        coin_id = context.args[0].lower()
+        input_text = context.args[0].lower()
+        coin_id = get_coin_id(input_text)
         price_data = await self.crypto_service.get_detailed_price(coin_id)
         
         if not price_data:
-            await update.message.reply_text(f"Could not find detailed price data for {coin_id}")
+            await update.message.reply_text(f"Could not find detailed price data for {input_text}")
             return
             
         # Default to 0 for any None values
@@ -54,8 +59,10 @@ class PriceHandlers:
         total_supply = price_data.get('total_supply', 0) or 0
         max_supply = price_data.get('max_supply', 0) or 0
             
+        # Use the symbol if available, otherwise use the coin_id
+        display_name = get_symbol_from_id(coin_id) or coin_id.upper()
         message = (
-            f"📊 {coin_id.upper()} Detailed Price Info:\n\n"
+            f"📊 {display_name} Detailed Price Info:\n\n"
             f"Current Price: ${current_price:,.2f}\n"
             f"Market Cap: ${market_cap:,.2f}\n"
             f"24h Volume: ${total_volume:,.2f}\n"
@@ -76,7 +83,8 @@ class PriceHandlers:
             await update.message.reply_text("Please provide a coin ID. Example: /c bitcoin")
             return
             
-        coin_id = context.args[0].lower()
+        input_text = context.args[0].lower()
+        coin_id = get_coin_id(input_text)
         days = 7  # Default to 7 days
         
         if len(context.args) > 1:
@@ -88,10 +96,12 @@ class PriceHandlers:
         chart_data = await self.crypto_service.generate_price_chart(coin_id, days)
         
         if not chart_data:
-            await update.message.reply_text(f"Could not generate chart for {coin_id}")
+            await update.message.reply_text(f"Could not generate chart for {input_text}")
             return
             
-        await update.message.reply_photo(chart_data, caption=f"{coin_id.upper()} Price Chart - Last {days} Days")
+        # Use the symbol if available, otherwise use the coin_id
+        display_name = get_symbol_from_id(coin_id) or coin_id.upper()
+        await update.message.reply_photo(chart_data, caption=f"{display_name} Price Chart - Last {days} Days")
         
     async def candlestick_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         """Handle /cs command - Get candlestick chart for a coin."""
@@ -99,7 +109,8 @@ class PriceHandlers:
             await update.message.reply_text("Please provide a coin ID. Example: /cs bitcoin")
             return
             
-        coin_id = context.args[0].lower()
+        input_text = context.args[0].lower()
+        coin_id = get_coin_id(input_text)
         days = 7  # Default to 7 days
         
         if len(context.args) > 1:
@@ -111,10 +122,12 @@ class PriceHandlers:
         chart_data = await self.crypto_service.generate_candlestick_chart(coin_id, days)
         
         if not chart_data:
-            await update.message.reply_text(f"Could not generate candlestick chart for {coin_id}")
+            await update.message.reply_text(f"Could not generate candlestick chart for {input_text}")
             return
             
-        await update.message.reply_photo(chart_data, caption=f"{coin_id.upper()} Candlestick Chart - Last {days} Days")
+        # Use the symbol if available, otherwise use the coin_id
+        display_name = get_symbol_from_id(coin_id) or coin_id.upper()
+        await update.message.reply_photo(chart_data, caption=f"{display_name} Candlestick Chart - Last {days} Days")
         
     async def top_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         """Handle /top command - Get top coins by market cap."""

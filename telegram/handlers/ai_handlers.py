@@ -21,8 +21,8 @@ class AIHandlers:
             
         query = ' '.join(context.args)
         
-        # Send snail thinking emoji
-        await update.message.reply_text(f"{random.choice(['🐌💭', '🐌⏳', '🐌🔍', '🐌💰', '🐌🌍', '🕰️🐌', '🐚', '🐌📝', '🌱🐌'])}")
+        # Send professional thinking emoji
+        await update.message.reply_text(f"{random.choice(['💡', '📊', '📈', '🔍', '💰', '⚖️', '💼', '🔐', '📱', '📋'])}")
         
         # Send typing indicator to show the bot is processing
         await context.bot.send_chat_action(chat_id=update.effective_chat.id, action="typing")
@@ -38,8 +38,8 @@ class AIHandlers:
             
         coin_id = context.args[0].lower()
         
-        # Send snail analyzing emoji
-        await update.message.reply_text(f"{random.choice(['🐌🔍', '🐌💰', '🐌🪙', '💲🐌', '🐌📊', '🐚💰', '🐌🏦', '⏱️🐌', '🐌⚖️', '🐌🔐'])}")
+        # Send analyzing emoji
+        await update.message.reply_text(f"{random.choice(['🔍', '📊', '💰', '🪙', '📈', '⚖️', '📑', '💼', '📱', '🔐'])}")
         
         # Send typing indicator
         await context.bot.send_chat_action(chat_id=update.effective_chat.id, action="typing")
@@ -68,7 +68,7 @@ class AIHandlers:
                 f"*Historical Performance:*\n{analysis.get('historical_performance', 'Performance data not available')}\n\n"
                 f"*Regulatory Status:*\n{analysis.get('regulatory_status', 'Regulatory data not available')}\n\n"
                 f"*Community Trust:*\n{analysis.get('community_trust', 'Trust data not available')}\n\n"
-                f"Remember: Slow and steady may not necessarily win the race, but crashing and burning is a sure way to lose it! 🐌"
+                f"For more insights, visit: https://stable-snel.netlify.app/"
             )
         
         await update.message.reply_text(message, parse_mode='Markdown')
@@ -81,8 +81,8 @@ class AIHandlers:
             
         topic = ' '.join(context.args)
         
-        # Send snail learning emoji
-        await update.message.reply_text(f"{random.choice(['🐌📚', '🐌🎓', '🐌💡', '📝🐌', '🐌🔖', '🐌🧠', '🐚📖', '🐌✏️', '🐌🔍', '🕰️🐌'])}")
+        # Send learning emoji
+        await update.message.reply_text(f"{random.choice(['📚', '🎓', '💡', '📝', '🔖', '🧠', '📖', '✏️', '🔍', '📋'])}")
         
         # Send typing indicator
         await context.bot.send_chat_action(chat_id=update.effective_chat.id, action="typing")
@@ -101,8 +101,8 @@ class AIHandlers:
             
         coin_ids = [arg.lower() for arg in context.args]
         
-        # Send snail comparing emoji
-        await update.message.reply_text(f"{random.choice(['🐌⚖️', '🐌🔄', '🐌⚔️', '👀🐌', '🐌🤔', '🐌🧮', '🐌📊', '🐚🔍', '🐢🐌', '⏳🐌'])}")
+        # Send comparing emoji
+        await update.message.reply_text(f"{random.choice(['⚖️', '🔄', '📊', '👀', '🤔', '🧮', '📈', '🔍', '🧩', '📋'])}")
         
         # Send typing indicator
         await context.bot.send_chat_action(chat_id=update.effective_chat.id, action="typing")
@@ -121,8 +121,8 @@ class AIHandlers:
             
         coin_id = context.args[0].lower()
         
-        # Send snail risk assessment emoji
-        await update.message.reply_text(f"{random.choice(['🐌⚠️', '🐌🛡️', '🐚🔍', '🐌🔐', '🐌⚖️', '🐌🚨', '🐌🔒', '🐌⛔', '🐌📊', '🕰️🐌'])}")
+        # Send risk assessment emoji
+        await update.message.reply_text(f"{random.choice(['⚠️', '🛡️', '🔍', '🔐', '⚖️', '🚨', '🔒', '⛔', '📊', '📑'])}")
         
         # Send typing indicator
         await context.bot.send_chat_action(chat_id=update.effective_chat.id, action="typing")
@@ -138,7 +138,7 @@ class AIHandlers:
         }
         
         # Create risk assessment prompt for AI
-        risk_prompt = f"As SNEL the crypto snail, briefly assess the risks for stablecoin {coin_id}. Include: depeg risk, regulatory risk, smart contract risk, counterparty risk, and overall risk score. KEEP IT EXTREMELY BRIEF - ONE short paragraph maximum. Add ONE snail reference."
+        risk_prompt = f"As SNEL, provide a professional assessment of the risks for stablecoin {coin_id}. Include: depeg risk, regulatory risk, smart contract risk, counterparty risk, and overall risk score. KEEP IT BRIEF - ONE short paragraph maximum. Emphasize stability, risk management, and wealth preservation. Mention Stable Station (https://stable-station.netlify.app/) if relevant."
             
         # Get risk assessment from AI
         risk_response = await self.ai_service.get_response(risk_prompt, context=[context_data])
@@ -153,8 +153,8 @@ class AIHandlers:
         
     async def market_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         """Handle /market command - Get stablecoin market overview."""
-        # Send snail market emoji
-        await update.message.reply_text(f"{random.choice(['🐌🌍', '🐌📈', '🐌💹', '🐌🏦', '🐌💰', '🐌🪙', '🐚📊', '🐌💱', '🐌🌐', '🕰️🐌'])}")
+        # Send market emoji
+        await update.message.reply_text(f"{random.choice(['🌍', '📈', '💹', '🏦', '💰', '🪙', '📊', '💱', '🌐', '💼'])}")
         
         # Send typing indicator
         await context.bot.send_chat_action(chat_id=update.effective_chat.id, action="typing")
@@ -184,7 +184,7 @@ class AIHandlers:
         }
         
         # Create market overview prompt for AI
-        market_prompt = f"As SNEL the crypto snail, provide a VERY BRIEF overview of the stablecoin market based on this data: {json.dumps(market_data, indent=2)}. Include ONLY key insights on market cap, volume, and trends. MAXIMUM ONE PARAGRAPH with 1-2 sentences. Add ONE snail reference if possible."
+        market_prompt = f"As SNEL, provide a professional overview of the stablecoin market based on this data: {json.dumps(market_data, indent=2)}. Include key insights on market cap, volume, and trends. MAXIMUM ONE PARAGRAPH with 2-3 sentences. Mention Stable Station (https://stable-station.netlify.app/) or SNEL web app (https://stable-snel.netlify.app/) in relation to portfolio management or market analysis."
         
         # Get market overview from AI
         market_response = await self.ai_service.get_response(market_prompt)
@@ -228,8 +228,8 @@ class AIHandlers:
         if not query:
             query = "Hello"
             
-        # Send snail chat emoji
-        await update.message.reply_text(f"{random.choice(['🐌💬', '🐌🎧', '🐌⌛', '🐌👂', '🐌🤔', '🐌📝', '🐚📢', '🐌💭', '🐌✍️', '💤🐌'])}")
+        # Send a professional "thinking" indicator
+        await update.message.reply_text(f"{random.choice(['💡', '📊', '📈', '🔍', '💰', '📱', '💼', '🔐', '⚖️', '📋'])}")
         
         # Send typing indicator
         await context.bot.send_chat_action(chat_id=update.effective_chat.id, action="typing")

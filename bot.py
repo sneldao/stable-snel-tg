@@ -29,30 +29,31 @@ ai_handlers = AIHandlers()
 async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_first_name = update.effective_user.first_name
     await update.message.reply_text(
-        f'Hello {user_first_name}! 🐌 I\'m SNEL (Slow Notably Enlightened Libertarian)!\n\n'
-        'I may be slow-moving, but I\'m crypto-savvy! I can help you:\n'
-        '• Swap tokens (at my own pace...)\n'
-        '• Bridge assets across chains (slowly but surely)\n'
-        '• Check balances (counting takes time!)\n'
-        '• Navigate stablecoins & real-world assets\n\n'
-        '🔹 *Commands*\n'
+        f'Welcome {user_first_name}! 💰 I\'m SNEL (Stablecoin Navigation and Education Leader).\n\n'
+        'I\'m here to assist you with:\n'
+        '• Stablecoin information and analysis\n'
+        '• Real-world asset (RWA) insights\n'
+        '• Risk assessment and portfolio diversification\n'
+        '• Market data and investment strategies\n\n'
+        '🔹 *Key Commands*\n'
         '• `/p usdc` - Check stablecoin price\n'
         '• `/s usdt` - Detailed price info\n'
         '• `/i dai` - Learn about a stablecoin\n'
         '• `/ask` - Ask me any crypto question\n\n'
         '🔹 *Need Help?*\n'
         '• `/help` - See all available commands\n'
-        '• `/about` - Learn more about me\n'
-        '• `/status` - Check if I\'m running smoothly\n\n'
-        'Visit my web-garden: https://stable-station.netlify.app/\n'
+        '• `/about` - Learn more about SNEL\n'
+        '• `/status` - Check system status\n\n'
+        'Visit Stable Station: https://stable-station.netlify.app/\n'
         'For guided stablecoin swaps & portfolio diversification\n\n'
-        '🐌 In crypto, the tortoise beats the REKT hare!',
+        'Check market insights: https://stable-snel.netlify.app/\n'
+        'For on/off ramp solutions and data analytics',
         parse_mode='Markdown'
     )
 
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(
-        '🐌 SNEL\'s Slow-Motion Help Guide 🐌\n\n'
+        '📊 SNEL Command Reference Guide 📊\n\n'
         'Price & Market Data:\n'
         '• /p <coin> - Current price\n'
         '• /s <coin> - Detailed price info\n'
@@ -75,37 +76,41 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         '• /n <coin> - Latest news\n'
         '• /soc <coin> - Social media links\n'
         '• /ev <coin> - Upcoming events\n\n'
-        'Web App: https://stable-station.netlify.app/\n'
-        'For guided stablecoin swaps & portfolio diversification\n\n'
-        '🐚 I move slowly, but my crypto advice is worth the wait!'
+        'Web Apps:\n'
+        '• Stable Station: https://stable-station.netlify.app/\n'
+        '  For guided stablecoin swaps & portfolio diversification\n'
+        '• SNEL Analytics: https://stable-snel.netlify.app/\n'
+        '  For market insights and on/off ramp solutions'
     )
 
 async def about_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(
-        '🐌 About SNEL\n\n'
-        'I\'m SNEL (Slow Notably Enlightened Libertarian), a crypto snail who takes my time but gives solid advice!\n\n'
-        '🔹 My Story\n'
-        'While others race for quick gains, I slowly crawl toward steady growth. My shell protects me from market volatility, just like I protect your crypto journey.\n\n'
+        '💰 About SNEL\n\n'
+        'SNEL (Stablecoin Navigation and Education Leader) is your professional guide to stability in the volatile crypto markets.\n\n'
+        '🔹 Our Mission\n'
+        'While much of crypto focuses on high-risk speculation, SNEL emphasizes stability, risk management, and long-term wealth preservation through stablecoins and real-world assets.\n\n'
         '🔹 Specialties\n'
         '• Stablecoins & Real World Assets (RWAs)\n'
-        '• Token swaps & bridges (at snail speed)\n'
-        '• Portfolio diversification\n'
-        '• Risk assessment (my antenna detect danger!)\n\n'
-        '🔹 Visit My Web Garden\n'
-        'https://stable-station.netlify.app/\n'
-        'For guided stablecoin swaps & global diversification\n\n'
-        '🐚 Shell wisdom: In crypto, slow and steady makes you ready!'
+        '• Strategic portfolio diversification\n'
+        '• Risk assessment and mitigation\n'
+        '• Market analysis and education\n\n'
+        '🔹 Web Resources\n'
+        '• Stable Station: https://stable-station.netlify.app/\n'
+        '  For guided stablecoin swaps & global diversification\n'
+        '• SNEL Analytics: https://stable-snel.netlify.app/\n'
+        '  For market insights and on/off ramp solutions\n\n'
+        '📊 In crypto, prioritizing stability and understanding risk is the path to long-term success.'
     )
 
 async def status_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(
-        '🐌 SNEL Status Check\n\n'
-        '✅ Antenna: Functioning\n'
-        '✅ Shell: Intact\n'
-        '✅ Crypto knowledge: Up to date\n'
-        '✅ Slime trail: Fresh\n\n'
-        'Last crawl: ' + datetime.now().strftime('%Y-%m-%d %H:%M:%S UTC') + '\n\n'
-        'Moving slow but steady as always! 🐚'
+        '🔹 SNEL System Status 🔹\n\n'
+        '✅ API Connections: Online\n'
+        '✅ Database: Operational\n'
+        '✅ Market Data: Up to date\n'
+        '✅ AI Systems: Responsive\n\n'
+        'Last update: ' + datetime.now().strftime('%Y-%m-%d %H:%M:%S UTC') + '\n\n'
+        'All systems operational. For market insights, visit: https://stable-snel.netlify.app/'
     )
 
 async def echo(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -122,7 +127,7 @@ async def echo(update: Update, context: ContextTypes.DEFAULT_TYPE):
         print(f"Error in AI chat handling: {e}")
         # Fallback to basic echo if AI fails
         if update.effective_chat.type == 'private':
-            await update.message.reply_text("I'm a bit slow at the moment 🐌. Try a command like /help or /p bitcoin")
+            await update.message.reply_text("I'm currently experiencing high request volume. Please try a command like /help or /p bitcoin")
 
 def main():
     # Create the Application
